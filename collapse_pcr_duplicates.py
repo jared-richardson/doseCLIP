@@ -122,7 +122,7 @@ def init_argparse():
             input.
     """
     # Script description.
-    parser = argparse.ArugmentParser(description = "Collapses PCR duplicates using eCLIP \
+    parser = argparse.ArgumentParser(description = "Collapses PCR duplicates using eCLIP \
                                                     UMI sequences for paired-end reads.")        
     # Command line arguments and descriptions.
     parser.add_argument("-r1", "--fastq_read1", action = "store", type = str, 
