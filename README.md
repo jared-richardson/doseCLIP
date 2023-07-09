@@ -65,10 +65,10 @@ uploaded soon...
 Now the reads are ready to be counted. To count the reads I use subread. The page for subread can be found here- 
 https://subread.sourceforge.net/. The command I use is below. -T should be set to the number of threads desired to be used when running. All 
 HITS-CLIP samples developed for each doseCLIP experiment should be counted together. 
-'''
+```
 featureCounts -T 1 -p -O \
 -a genomic_target_file.gtf \
 -o output_counts_file.txt -t gene \
 input_alignment_file1.sorted.bam \
 input_alignment_file2.sorted.bam 
-'''
+```
