@@ -118,8 +118,7 @@ def init_argparse():
         See command line argument descriptions below.
 
         Output:
-        Returns parser object. Object is used for function
-            input.
+        Returns parser object. Object is used for function input.
     """
     # Script description.
     parser = argparse.ArgumentParser(description = "Collapses PCR duplicates using eCLIP \
@@ -159,7 +158,7 @@ def main():
     parsed = args_to_parse.parse_args()
     # Iterates through and executes main functions.
     deduplicate_fastq(parsed.fastq_read1, parsed.fastq_read2,
-                       parsed.fastq_read1_out, parsed.fastq_read2_out)
+                      parsed.fastq_read1_out, parsed.fastq_read2_out)
 
 # Executes main function.
 if __name__ == "__main__":
