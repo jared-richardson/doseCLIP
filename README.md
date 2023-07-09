@@ -25,5 +25,5 @@ cutadapt -f fastq --match-read-wildcards --nextseq-trim=10 -q 10 --times 1  -e 0
 > /blue/berglund/jared.richardson/clip/clip_1/TrimMetrics1
 ```
 The next step is to remove the PCR duplicates. I developed a script to do this **collapse_pcr_duplicates.py**. The script also has a Pytest testing script 
-(**test_pcr_duplicates**) and associated testing files. This can be used on your system by typing the `pytest` command in the script's directory. The options for the 
-**collapse_pcr_duplicates.py** script can be found using the command `python3 collapse_pcr_duplicates.py -h`. The script requires paired-end Illumina sequencing data.
+(**test_collapse_pcr_duplicates.py**) and associated testing files. This can be used on your system by typing the `pytest` command in the script's directory. The options 
+for the **collapse_pcr_duplicates.py** script can be found using the command `python3 collapse_pcr_duplicates.py -h`. The script requires paired-end Illumina sequencing data.
