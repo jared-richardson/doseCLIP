@@ -74,47 +74,47 @@ Data Types:
                           count_match", [
                          # Test 1: Normal FASTQ input (two identifcal reads).
                          # fastq_read1
-                         (("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test1_read1.fastq"),
+                         (("test_files/collapse_pcr_duplicates/test1_read1.fastq"),
                          # fastq_read2
-                         ("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test1_read2.fastq"),
+                         ("test_files/collapse_pcr_duplicates/test1_read2.fastq"),
                          # fastq_read1_out
-                         ("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test1_read1_check.fastq"),
+                         ("test_files/collapse_pcr_duplicates/test1_read1_check.fastq"),
                          # fastq_read2_out
-                         ("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test1_read2_check.fastq"),
+                         ("test_files/collapse_pcr_duplicates/test1_read2_check.fastq"),
                          # count_match
                          (4)),
                          # Test 2: Normal FASTQ input (three identical reads).
                          # fastq_read1
-                         (("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test2_read1.fastq"),
+                         (("test_files/collapse_pcr_duplicates/test2_read1.fastq"),
                          # fastq_read2
-                         ("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test2_read2.fastq"),
+                         ("test_files/collapse_pcr_duplicates/test2_read2.fastq"),
                          # fastq_read1_out
-                         ("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test2_read1_check.fastq"),
+                         ("test_files/collapse_pcr_duplicates/test2_read1_check.fastq"),
                          # fastq_read2_out
-                         ("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test2_read2_check.fastq"),
+                         ("test_files/collapse_pcr_duplicates/test2_read2_check.fastq"),
                          # count_match
                          (4)),
                          # Test 3: Normal FASTQ input (second read of one input does not match, three other identical reads).
                          # fastq_read1
-                         (("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test3_read1.fastq"),
+                         (("test_files/collapse_pcr_duplicates/test3_read1.fastq"),
                          # fastq_read2
-                         ("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test3_read2.fastq"),
+                         ("test_files/collapse_pcr_duplicates/test3_read2.fastq"),
                          # fastq_read1_out
-                         ("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test3_read1_check.fastq"),
+                         ("test_files/collapse_pcr_duplicates/test3_read1_check.fastq"),
                          # fastq_read2_out
-                         ("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test3_read2_check.fastq"),
+                         ("test_files/collapse_pcr_duplicates/test3_read2_check.fastq"),
                          # count_match
                          (8)),
                          # Test 4: Normal FASTQ input (two sets of matching reads, one read with no "adaptor1", and a second read UMI that
                          # does not match the first).
                          # fastq_read1
-                         (("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test4_read1.fastq"),
+                         (("test_files/collapse_pcr_duplicates/test4_read1.fastq"),
                          # fastq_read2
-                         ("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test4_read2.fastq"),
+                         ("test_files/collapse_pcr_duplicates/test4_read2.fastq"),
                          # fastq_read1_out
-                         ("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test4_read1_check.fastq"),
+                         ("test_files/collapse_pcr_duplicates/test4_read1_check.fastq"),
                          # fastq_read2_out
-                         ("/Users/jared.richardson/Desktop/clip/scripts/python/test_files/collapse_pcr_duplicates/test4_read2_check.fastq"),
+                         ("test_files/collapse_pcr_duplicates/test4_read2_check.fastq"),
                          # count_match
                          (16))                             
                          ])
