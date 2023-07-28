@@ -56,7 +56,8 @@ https://bedtools.readthedocs.io/en/latest/. The command I use is below.
 bedtools bamtobed -i output_alignment_file.sorted.bam > output_alignment_file.sorted.bed
 '''
 ## Step 4: Using Piranha to determine read pileup locations and make custom annotation.
-With the bed files, use Piranha to determine the bounderies of aligned reads. These regions will be used to build a custom GTF file that can be 
+With the bed files, use Piranha to determine the bounderies of aligned reads. This only needs to be performed on the regular CLIP samples, not the SM samples. These regions 
+will be used to build a custom GTF file that can be 
 used to count read pileups in these regions. The Piranha manual can be found here- http://smithlabresearch.org/software/piranha/. The command I 
 use for the program is below. The -z parameter is for the bin size and should be equal to the raw length of each input read.
 ```
@@ -68,7 +69,7 @@ command in the script's directory (after installing pytest). The options for the
 collapse_pcr_duplicates.py -h`. The script requires paired-end Illumina sequencing data. The script can take all the Piranha BED files and produce a single combined GTF 
 file.
 ## Step 5: Counting the reads.
-Now the reads are ready to be counted. To count the reads I use subread. The page for subread can be found here- 
+Now the reads are ready to be counted. Count all the CLIP and SM samples. To count the reads I use subread. The page for subread can be found here- 
 https://subread.sourceforge.net/. The command I use is below. -T should be set to the number of threads desired to be used when running. All 
 HITS-CLIP samples developed for each doseCLIP experiment should be counted together. The '-a' parameter should be the joined GTF file from the previous step. 
 ```
