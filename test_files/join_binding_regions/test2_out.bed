@@ -1,0 +1,8 @@
+chr1	pir	gene	100	200	15	+	0.00103521	gene_id "chr1~100~200~+g"; gene_version "1"; 
+chr1	pir	transcript	100	200	15	+	0.00103521	gene_id "chr1~100~200~+"; gene_version "1"; transcript_id "chr1~100~200~+t"; 
+chr1	pir	gene	300	500	15	+	0.00103521	gene_id "chr1~300~500~+g"; gene_version "1"; 
+chr1	pir	transcript	300	500	15	+	0.00103521	gene_id "chr1~300~500~+"; gene_version "1"; transcript_id "chr1~300~500~+t"; 
+chr1	pir	gene	600	1000	15	+	0.00103521	gene_id "chr1~600~1000~+g"; gene_version "1"; 
+chr1	pir	transcript	600	1000	15	+	0.00103521	gene_id "chr1~600~1000~+"; gene_version "1"; transcript_id "chr1~600~1000~+t"; 
+chr1	pir	gene	1500	2000	15	+	0.00103521	gene_id "chr1~1500~2000~+g"; gene_version "1"; 
+chr1	pir	transcript	1500	2000	15	+	0.00103521	gene_id "chr1~1500~2000~+"; gene_version "1"; transcript_id "chr1~1500~2000~+t"; 

@@ -1,0 +1,2 @@
+chr1	pir	gene	100	200	15	+	0.00103521	gene_id "chr1~100~200~+g"; gene_version "1"; 
+chr1	pir	transcript	100	200	15	+	0.00103521	gene_id "chr1~100~200~+"; gene_version "1"; transcript_id "chr1~100~200~+t"; 
