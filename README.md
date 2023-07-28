@@ -42,10 +42,12 @@ minimap2 -t 1 -ax sr genomic_target_file.fasta input_fastq_file_read1.fastq inpu
 For more information, see the Minimap2 manual at https://lh3.github.io/minimap2/minimap2.html.
 ## Step 3: Sorting and converting alignment files.
 Before subsequent steps, the reads will need to be sorted. I used samtools to do this. The command is below. 
-```samtools sort input_alignment_file.sam > output_alignment_file.sorted.sam
+```
+samtools sort input_alignment_file.sam > output_alignment_file.sorted.sam
 ``` 
 After this the SAM file will need to be converted to BAM format. I use the command below.
-```samtools view -S -b input_alignment_file.sorted.sam > output_alignment_file.sorted.bam
+```
+samtools view -S -b input_alignment_file.sorted.sam > output_alignment_file.sorted.bam
 ```
 For more information on samtools, please see the samtools manual- http://www.htslib.org/doc/samtools.html.
 After using samtools, bedtools will need to be used to convert the BAM filse to BED files. The bedtools manual can be found here- 
