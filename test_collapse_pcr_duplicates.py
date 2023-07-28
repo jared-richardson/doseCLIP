@@ -20,33 +20,33 @@ Data Types:
                          # Test 1: Normal kmer input.
                          # kmer
                          (("ATGC"),
-                         # reverse_complement
-                         ("GCAT")),
+                          # reverse_complement
+                          ("GCAT")),
                          # Test 2: Long kmer input.
                          # kmer
                          (("ATGCGCCCTAGT"),
-                         # reverse_complement
-                         ("ACTAGGGCGCAT")),
+                          # reverse_complement
+                          ("ACTAGGGCGCAT")),
                          # Test 3: Short kmer input.
                          # kmer
                          (("A"),
-                         # reverse_complement
-                         ("T")),
+                          # reverse_complement
+                          ("T")),
                          # Test 4: None Nucleotide kmer input.
                          # kmer
                          (("ATGCFR"),
-                         # reverse_complement
-                         ("RFGCAT")),
+                          # reverse_complement
+                          ("RFGCAT")),
                          # Test 5: Empty input.
                          # kmer
                          ((""),
-                         # reverse_complement
-                         (""))
+                          # reverse_complement
+                          (""))
                          ])
 
 def test_reverse_complement(kmer, reverse_complement):
     """
-        GIVEN a kmer that needs to be reverse complemented
+        GIVEN a kmer that needs to be reverse complemented.
         WHEN the function reverse complements the kmer.
         THEN the reverse complement is checked for correctness.
     """
@@ -75,48 +75,48 @@ Data Types:
                          # Test 1: Normal FASTQ input (two identifcal reads).
                          # fastq_read1
                          (("test_files/collapse_pcr_duplicates/test1_read1.fastq"),
-                         # fastq_read2
-                         ("test_files/collapse_pcr_duplicates/test1_read2.fastq"),
-                         # fastq_read1_out
-                         ("test_files/collapse_pcr_duplicates/test1_read1_check.fastq"),
-                         # fastq_read2_out
-                         ("test_files/collapse_pcr_duplicates/test1_read2_check.fastq"),
-                         # count_match
-                         (4)),
+                          # fastq_read2
+                          ("test_files/collapse_pcr_duplicates/test1_read2.fastq"),
+                          # fastq_read1_out
+                          ("test_files/collapse_pcr_duplicates/test1_read1_check.fastq"),
+                          # fastq_read2_out
+                          ("test_files/collapse_pcr_duplicates/test1_read2_check.fastq"),
+                          # count_match
+                          (4)),
                          # Test 2: Normal FASTQ input (three identical reads).
                          # fastq_read1
                          (("test_files/collapse_pcr_duplicates/test2_read1.fastq"),
-                         # fastq_read2
-                         ("test_files/collapse_pcr_duplicates/test2_read2.fastq"),
-                         # fastq_read1_out
-                         ("test_files/collapse_pcr_duplicates/test2_read1_check.fastq"),
-                         # fastq_read2_out
-                         ("test_files/collapse_pcr_duplicates/test2_read2_check.fastq"),
-                         # count_match
-                         (4)),
+                          # fastq_read2
+                          ("test_files/collapse_pcr_duplicates/test2_read2.fastq"),
+                          # fastq_read1_out
+                          ("test_files/collapse_pcr_duplicates/test2_read1_check.fastq"),
+                          # fastq_read2_out
+                          ("test_files/collapse_pcr_duplicates/test2_read2_check.fastq"),
+                          # count_match
+                          (4)),
                          # Test 3: Normal FASTQ input (second read of one input does not match, three other identical reads).
                          # fastq_read1
                          (("test_files/collapse_pcr_duplicates/test3_read1.fastq"),
-                         # fastq_read2
-                         ("test_files/collapse_pcr_duplicates/test3_read2.fastq"),
-                         # fastq_read1_out
-                         ("test_files/collapse_pcr_duplicates/test3_read1_check.fastq"),
-                         # fastq_read2_out
-                         ("test_files/collapse_pcr_duplicates/test3_read2_check.fastq"),
-                         # count_match
-                         (8)),
+                          # fastq_read2
+                          ("test_files/collapse_pcr_duplicates/test3_read2.fastq"),
+                          # fastq_read1_out
+                          ("test_files/collapse_pcr_duplicates/test3_read1_check.fastq"),
+                          # fastq_read2_out
+                          ("test_files/collapse_pcr_duplicates/test3_read2_check.fastq"),
+                          # count_match
+                          (8)),
                          # Test 4: Normal FASTQ input (two sets of matching reads, one read with no "adaptor1", and a second read UMI that
                          # does not match the first).
                          # fastq_read1
                          (("test_files/collapse_pcr_duplicates/test4_read1.fastq"),
-                         # fastq_read2
-                         ("test_files/collapse_pcr_duplicates/test4_read2.fastq"),
-                         # fastq_read1_out
-                         ("test_files/collapse_pcr_duplicates/test4_read1_check.fastq"),
-                         # fastq_read2_out
-                         ("test_files/collapse_pcr_duplicates/test4_read2_check.fastq"),
-                         # count_match
-                         (16))                             
+                          # fastq_read2
+                          ("test_files/collapse_pcr_duplicates/test4_read2.fastq"),
+                          # fastq_read1_out
+                          ("test_files/collapse_pcr_duplicates/test4_read1_check.fastq"),
+                          # fastq_read2_out
+                          ("test_files/collapse_pcr_duplicates/test4_read2_check.fastq"),
+                          # count_match
+                          (16))                             
                          ])
 
 def test_deduplicate_fastq(tmpdir, fastq_read1, fastq_read2,
@@ -137,7 +137,7 @@ def test_deduplicate_fastq(tmpdir, fastq_read1, fastq_read2,
     # Makes temporary output files.
     fastq_temp_1 = tmpdir.join("fastq_temp_1")
     fastq_temp_2 = tmpdir.join("fastq_temp_2")
-    # Executes function
+    # Executes function.
     c_p_d.deduplicate_fastq(fastq_read1, fastq_read2, fastq_temp_1.strpath, fastq_temp_2.strpath)
     # Checks each line of the temporary output against the expected output
     # in the premade test files. Counts should match.
