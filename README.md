@@ -79,3 +79,62 @@ featureCounts -T 1 -p -O \
 input_alignment_file1.sorted.bam \
 input_alignment_file2.sorted.bam 
 ```
+## Step 6: Preparing the reads for DeSeq2.
+After counting, the reads will need to be given titles for DeSeq2, formatted, and organized by sample type. I do this using Excel, but it can be done using a script, text 
+editor, the command line, and/or a combination of the three. Subread outputs a few header lines with the rest of the file in txt format (tab deliminated). The minimum that 
+needs to be done is removing the header lines, the extra columns removed, and the columns need titles. I also reformat to CSV but txt can be input into R just as easily. 
+Remove the header line(s) that indicates the processing commands, parameters, and samples. Insert a title row above the first line of counts. Remove the columns that indicate 
+the chromosome (scaffold), the starting coordinate of the feature, the ending coordinate of the feature, and the strand. All that is needed is the gene name and the counts. 
+Two counts files will be needed. One with just the normal CLIP samples and the other with the normal CLIP samples and the SM controls. The file with only the CLIP samples is 
+used for determining counts for each binding region. The CLIP and SM contols counts file is used to filter out regions in the CLIP samples that do not show significantly more 
+binding than is seen in the SM samples. This removes false positives in the CLIP samples. The file should look something like this after (if using CSV format):
+```
+gene_id,sample_1,sample_2,sample_3,etc...
+chr10~100283100~100283250~-g,3,4,5,etc...
+```
+Please note- the names used for samples will need to match the names in the phenotype file required for DeSeq2. The phenotype file is the files used by DeSeq2 to group 
+samples together by type. The format I use for the file is as follows:
+```
+,condition,type
+sample_1,x50,run_1
+sample_2,x50,run_1
+sample_3,x50,run_1
+sample_4,x36,run_1
+etc...
+```
+The condition is the sample type (in the case of doseCLIP it is protein concentration). Type is not required but can be useful for visualizations. These visualizations can 
+help to understand if there were batch effects in the samples (i.e., sequencing certain samples together). Once the two counts files are prepared and the phenotype files 
+prepared for each, the data can be input into DeSeq2 for differential expression analysis.
+## Step 7: RNA-Seq data processing.
+At this point it is advantageous to process the RNA-Seq data. Many of the steps are the same as with the CLIP data, except for the following differences. There of course are 
+no SM controls for the RNA-Seq samples, so do not worry about these. The first step for the RNA-Seq samples (after ensuring they are of sufficient quality- this can be done 
+with a tool like FastQC), is to align the reads. This can be performed using STAR for alignment. First an index of the target genomic sequence needs to be made. An example of 
+the commands I use are below. The manual for STAR can be found here- https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf. The --runThreadN parameter should be 
+set to the number of threads desired to be used and the --limitGenomeGenerateRAM parameter to the max RAM desired to be used.
+```
+STAR --runThreadN 32 --runMode genomeGenerate --genomeDir genomic_target_index_directory \
+--sjdbGTFfile target_genomic_gtf_annotation.gtf \
+--genomeFastaFiles genomic_target_file.fasta  \
+--sjdbOverhang 74 \
+--limitGenomeGenerateRAM=130000000000
+```
+After this, the RNA-Seq samples can be aligned. I use the following command.
+```
+STAR --runThreadN 32 --genomeDir genomic_target_index_directory \
+--readFilesIn input_fastq_file_rnaseq_read1.fastq \
+input_fastq_file_rnaseq_read2.fastq \
+--outFileNamePrefix alignment_file_out.sorted.bam \
+--outSAMtype BAM SortedByCoordinate
+```
+After alignment, splicing analysis can be performed. The command for this will be updated soon..
+## Step 7: DeSeq2 Analysis.
+The data now needs to be added to R for DeSeq2 analysis. If using the csv format, this can be done using the commands below (in R). Four files will need to be imported, the 
+counts file for the normal CLIP samples, the counts file for the normal CLIP file and the SM controls, the phenotype file for the CLIP counts, and the phenotype file 
+for the combined CLIP and SM samples.
+```
+counts_clip <- as.matrix(read.csv("normal_clip_counts_file.csv", row.names="gene_id"))
+phenotype_clip <- read.csv("clip_phenotype_file.csv", row.names=1)
+counts_clip_sm <- as.matrix(read.csv("combined_clip_sm_counts_file.csv", row.names="gene_id"))
+phenotype_clip_sm <- read.csv("combined_clip_sm_phenotype_file.csv", row.names=1)
+```
+Next, the 
