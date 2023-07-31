@@ -7,14 +7,14 @@ library(apeglm)
 # BiocManager::install("apeglm")
 
 # Imports counts files and phenotype files for regular CLIP samples and combined CLIP/SM samples. 
-# All counts files should have been edited as described on the doseCLIP GIT page.
+# All counts files should have been edited as described on the doseCLIP Git page.
 counts_clip <- as.matrix(read.csv("clip_subread_derived_counts.csv", row.names="gene_id"))
 phenotype_clip <- read.csv("clip_phenotype_file.csv", row.names=1)
 counts_clip_sm <- as.matrix(read.csv("clip_sm_subread_derived_counts.csv", row.names="gene_id"))
 phenotype_clip_sm <- read.csv("clip_phenotype_file.csv", row.names=1)
 
 # Imports counts file and imports file for RNA-Seq data. All counts files should have been 
-# edited as described on the doseCLIP GIT page.
+# edited as described on the doseCLIP Git page.
 counts_rna <- as.matrix(read.csv("rna_derived_counts.csv", row.names="gene_id"))
 phenotype_rna <- read.csv("rna_phenotype_file.csv", row.names=1)
 
