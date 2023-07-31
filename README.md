@@ -126,15 +126,31 @@ input_fastq_file_rnaseq_read2.fastq \
 --outFileNamePrefix alignment_file_out.sorted.bam \
 --outSAMtype BAM SortedByCoordinate
 ```
-After alignment, splicing analysis can be performed. The command for this will be updated soon..
-## Step 7: DeSeq2 Analysis.
-The data now needs to be added to R for DeSeq2 analysis. If using the csv format, this can be done using the commands below (in R). Four files will need to be imported, the 
-counts file for the normal CLIP samples, the counts file for the normal CLIP file and the SM controls, the phenotype file for the CLIP counts, and the phenotype file 
-for the combined CLIP and SM samples.
+After performing the splicing analyses, Subread can be used to get the gene counts from the BAM files. This can be performed using the same command as the CLIP/SM files, 
+except for the GTF file used should be the one used for RNA-Seq alignment with STAR (should match the target genomic FASTA sequence). All RNA-Seq samples should be processed 
+together. After this, the counts file should be prepared for DeSeq2, just like for the CLIP/SM samples. The RNA-Seq samples should have their own counts file, with only the 
+RNA-Seq samples combined. The DeSeq2 phenotype file will also need to be prepared for the RNA-Seq samples. This file should contain all the RNA-Seq samples and again be 
+separate. After preparing the files for DeSeq2, the splicing analysis can be performed. I use rMATS (turbo) for this. The rMATS manual can be found here- 
+https://rnaseq-mats.sourceforge.net/rmats4.0.2/user_guide.htm. The command I use is below. The alternative splicing analysis should be performed comparing the uninduced 
+samples versus each induced protein concentration. So for five induced sample sets and one uninduced sample set, there should be five rMATS analyses performed. The --nthread
+parameter is how many threads are desired when running.
 ```
-counts_clip <- as.matrix(read.csv("normal_clip_counts_file.csv", row.names="gene_id"))
-phenotype_clip <- read.csv("clip_phenotype_file.csv", row.names=1)
-counts_clip_sm <- as.matrix(read.csv("combined_clip_sm_counts_file.csv", row.names="gene_id"))
-phenotype_clip_sm <- read.csv("combined_clip_sm_phenotype_file.csv", row.names=1)
+rmats.py --b1 x5_sample_set.csv \
+--b2 uninduced_sample_set.csv \
+--gtf target_genomic_gtf_annotation.gtf \
+--od out_directory \
+-t paired --readLength 76 --libType fr-firststrand --nthread 4
 ```
-Next, the 
+The x5_sample_set.csv should be a CSV file with the locations of the BAM files for each replicate in a sample set. For example, the contents of the x5_sample_set.csv file 
+would be like below.
+'''
+x5_sample_1.sorted.bam,x5_sample_2.sorted.bam,x5_sample_3.sorted.bam
+'''
+The splicing analysis results can be saved for later analyses.
+## Step 8: DeSeq2 analysis.
+The **doseclip_deseq2_example.R** R script contains the needed R commands to be able to process the data. Edit the script for your samples and execute the commands. This 
+should produce a variety of normalized counts files for downsteam analyses. There are also additional commands to produce plots like in the doseCLIP paper (not published yet). 
+The main combinded plot needs downstream analyses to be performed before it can be completed. After producing the required normalized counts files, proceed to the next steps.
+## Step 9: Filtering the normalized counts 
+
+
