@@ -56,10 +56,10 @@ https://bedtools.readthedocs.io/en/latest/. The command I use is below.
 bedtools bamtobed -i output_alignment_file.sorted.bam > output_alignment_file.sorted.bed
 '''
 ## Step 4: Using Piranha to determine read pileup locations and make custom annotation.
-With the bed files, use Piranha to determine the bounderies of aligned reads. This only needs to be performed on the regular CLIP samples, not the SM samples. These regions 
-will be used to build a custom GTF file that can be 
-used to count read pileups in these regions. The Piranha manual can be found here- http://smithlabresearch.org/software/piranha/. The command I 
-use for the program is below. The -z parameter is for the bin size and should be equal to the raw length of each input read.
+With the bed files, use Piranha to determine the bounderies of aligned reads. This only needs to be performed on the regular CLIP and the SM samples. 
+These regions will be used to build a custom GTF file that can be used to count read pileups in these regions. The Piranha manual can be found 
+here- http://smithlabresearch.org/software/piranha/. The command I use for the program is below. The -z parameter is for the bin size and should 
+be equal to the raw length of each input read.
 ```
 Piranha -z 75 -u 0 -a 0.98 -s -o output_piranha_alignment_file.sorted.bed input_alignment_file.sorted.bed
 ```
@@ -67,11 +67,16 @@ Following using Piranha, a custom Python script is used to join all the regions 
 this. The script also has a Pytest testing script (**test_join_binding_regions.py**) and associated testing files. This can be used on your system by typing the `pytest` 
 command in the script's directory (after installing pytest). The options for the **join_binding_regions.py** script can be found using the command `python3 
 collapse_pcr_duplicates.py -h`. The script requires paired-end Illumina sequencing data. The script can take all the Piranha BED files and produce a single combined GTF 
-file.
+file. The script should be executed twice for each doseCLIP sample set. One GTF file should be generated using only the regular CLIP samples. This will be used for later
+analyses involving normalized counts. A second GTF file should be generated using the regular CLIP files and the SM Input controls. This will be used to filter out binding
+regions that are likely not authentically RBP bound regions. 
 ## Step 5: Counting the reads.
-Now the reads are ready to be counted. Count all the CLIP and SM samples. To count the reads I use subread. The page for subread can be found here- 
+Now the reads are ready to be counted. Count all the CLIP and SM samples in two separate iterations. To count the reads I use subread. The page for subread can be found here- 
 https://subread.sourceforge.net/. The command I use is below. -T should be set to the number of threads desired to be used when running. All 
-HITS-CLIP samples developed for each doseCLIP experiment should be counted together. The '-a' parameter should be the joined GTF file from the previous step. 
+HITS-CLIP samples developed for each doseCLIP experiment should be counted together. The '-a' parameter should be the joined GTF file from the previous step. One counts file
+should be produced using the GTF that was generated using only the regular CLIP samples. This count file should only count the regular CLIP sample reads. A second count file
+should be produced using the regular CLIP samples and the SM Input controls. The GTF file used for these counts should be the one that was generated using the SM Input 
+controls and the regular CLIP samples. 
 ```
 featureCounts -T 1 -p -O \
 -a piranha_generated_gtf.gtf \
@@ -82,12 +87,12 @@ input_alignment_file2.sorted.bam
 ## Step 6: Preparing the reads for DeSeq2.
 After counting, the reads will need to be given titles for DeSeq2, formatted, and organized by sample type. I do this using Excel, but it can be done using a script, text 
 editor, the command line, and/or a combination of the three. Subread outputs a few header lines with the rest of the file in txt format (tab deliminated). The minimum that 
-needs to be done is removing the header lines, the extra columns removed, and the columns need titles. I also reformat to CSV but txt can be input into R just as easily. 
-Remove the header line(s) that indicates the processing commands, parameters, and samples. Insert a title row above the first line of counts. Remove the columns that indicate 
+needs to be done is removing the header lines, the extra columns removed, and the columns need titles. I also reformat to CSV but text or TSV can be input into R just as 
+easily. Remove the header line(s) that indicates the processing commands, parameters, and samples. Insert a title row above the first line of counts. Remove the columns that indicate 
 the chromosome (scaffold), the starting coordinate of the feature, the ending coordinate of the feature, and the strand. All that is needed is the gene name and the counts. 
-Two counts files will be needed. One with just the normal CLIP samples and the other with the normal CLIP samples and the SM controls. The file with only the CLIP samples is 
-used for determining counts for each binding region. The CLIP and SM contols counts file is used to filter out regions in the CLIP samples that do not show significantly more 
-binding than is seen in the SM samples. This removes false positives in the CLIP samples. The file should look something like this after (if using CSV format):
+Two counts files will be needed. One with just the normal CLIP samples and the other with the normal CLIP samples and the SM controls (these should have been generated in 
+two separate processes in Step 5). The file with only the CLIP samples is used for determining counts for each binding region. The CLIP and SM contols counts file is used to filter out regions in the CLIP samples that do not show significantly more 
+binding than observed in the SM samples. This removes false positives in the CLIP samples. The file should look something like this after (if using CSV format):
 ```
 gene_id,sample_1,sample_2,sample_3,etc...
 chr10~100283100~100283250~-g,3,4,5,etc...
@@ -126,7 +131,7 @@ input_fastq_file_rnaseq_read2.fastq \
 --outFileNamePrefix alignment_file_out.sorted.bam \
 --outSAMtype BAM SortedByCoordinate
 ```
-After performing the splicing analyses, Subread can be used to get the gene counts from the BAM files. This can be performed using the same command as the CLIP/SM files, 
+After performing the splicing analyses, subread can be used to get the gene counts from the BAM files. This can be performed using the same command as the CLIP/SM files, 
 except for the GTF file used should be the one used for RNA-Seq alignment with STAR (should match the target genomic FASTA sequence). All RNA-Seq samples should be processed 
 together. After this, the counts file should be prepared for DeSeq2, just like for the CLIP/SM samples. The RNA-Seq samples should have their own counts file, with only the 
 RNA-Seq samples combined. The DeSeq2 phenotype file will also need to be prepared for the RNA-Seq samples. This file should contain all the RNA-Seq samples and again be 
@@ -150,7 +155,7 @@ The splicing analysis results can be saved for later analyses.
 ## Step 8: DeSeq2 analysis.
 The **doseclip_deseq2_example.R** R script contains the needed R commands to be able to process the data. Edit the script for your samples and execute the commands. This 
 should produce a variety of normalized counts files for downsteam analyses. There are also additional commands to produce plots like in the doseCLIP paper (not published yet). 
-The main combinded plot needs downstream analyses to be performed before it can be completed. After producing the required normalized counts files, proceed to the next steps.
+The main combined plot needs downstream analyses to be performed before it can be completed. After producing the required normalized counts files, proceed to the next steps.
 ## Step 9: Filtering the normalized counts 
 
 

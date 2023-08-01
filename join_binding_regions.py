@@ -192,7 +192,7 @@ def init_argparse():
     parser.add_argument("-b1", "--sample_1_bedfile", action = "store", type = str, 
                         help="BED file produced from Piranha or other CLIP read pileup tool.",
                         required = True)
-    parser.add_argument("-b2", "--sample_2_bedfile", action = "store", type = str, nargs='+', 
+    parser.add_argument("-b2", "--additional_bedfiles", action = "store", type = str, nargs='+', 
                         help = "Additional BED files needed to join first BED file. BED files \
                         should be produced from Piranha or other CLIP read pileup tool. Add \
                         each BED file needed to be joined separated by a space.", 
