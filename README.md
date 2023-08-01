@@ -74,7 +74,7 @@ https://subread.sourceforge.net/. The command I use is below. -T should be set t
 HITS-CLIP samples developed for each doseCLIP experiment should be counted together. The '-a' parameter should be the joined GTF file from the previous step. 
 ```
 featureCounts -T 1 -p -O \
--a genomic_target_file.gtf \
+-a piranha_generated_gtf.gtf \
 -o output_counts_file.txt -t gene \
 input_alignment_file1.sorted.bam \
 input_alignment_file2.sorted.bam 
