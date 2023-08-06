@@ -1,8 +1,7 @@
 import argparse
 from natsort import natsorted
 
-def join_binding_regions(sample_1_bedfile, additional_bedfiles,
-                         joined_gtf_file):
+def join_binding_regions(sample_1_bedfile, additional_bedfiles, joined_gtf_file):
     """Takes input BED files and joins all regions into a dictionary,
         removing all duplicate/overlapping regions.
 
@@ -14,7 +13,7 @@ def join_binding_regions(sample_1_bedfile, additional_bedfiles,
             from Piranha or other CLIP read pileup tool. Contains one 
             or more bed files.
         joined_gtf_file -- Output GTF file. Contains nonrepetitive,
-            comprehensive read pileup regions from each input sample.    
+            comprehensive read pileup regions from each input sample.
 
         Output:    
         No output. Uses output_file to write out data.
@@ -54,8 +53,6 @@ def join_binding_regions(sample_1_bedfile, additional_bedfiles,
                 # difficult for a clean output.
                 line_clean = line.strip("\n").replace("\t", "_")
                 line_sep = line_clean.split("_")
-                # TODO- Add strand!!!!!!
-                #chrom2, cord12, cord22 = line_sep[0], int(line_sep[1]), int(line_sep[2])
                 chrom2, cord12, cord22, strand2 = line_sep[0], int(line_sep[1]), int(line_sep[2]), line_sep[5]
                 for key in region_dictionary:
                     key_split = key.split("_")
@@ -211,6 +208,7 @@ def main():
         additional_bedfiles -- Additional BED files needed to join first BED file.
             BED files should be produced from Piranha or other CLIP read pileup tool.
             This is a list of one or more BED files.
+
         Output:    
         joined_gtf_file -- Output GTF file. Contains nonrepetitive, comprehensive
             read pileup regions from each input sample.
