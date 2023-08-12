@@ -161,11 +161,11 @@ with(res, plot(log2FoldChange, -log10(pvalue), pch=16, cex.lab = 1.25, cex.axis 
 # Binding region name files of SM filtered protein concentration vs. uninduced. These files will have to be produced separately, after the
 # normalized gene count files have been filtered with the SM comparison binding regions. The files contain one untitled column with
 # the binding region. It is possible to use the filtered counts files themselves, but I found this way easier at the time.
-regions_x5_vs_uni <- scan("x5_vs_uni_significant_sm_filtered.csv", what="", sep=",")
-regions_x10_vs_uni <- scan("x10_vs_uni_significant_sm_filtered.csv", what="", sep=",")
-regions_x20_vs_uni <- scan("x20_vs_uni_significant_sm_filtered.csv", what="", sep=",")
-regions_x36_vs_uni <- scan("x36_vs_uni_significant_sm_filtered.csv", what="", sep=",")
-regions_x50_vs_uni<- scan("x50_vs_uni_significant_sm_filtered.csv", what="", sep=",")
+regions_x5_vs_uni <- scan("x5_vs_uni_significant_filt_annot_name.csv", what="", sep=",")
+regions_x10_vs_uni <- scan("x10_vs_uni_significant_filt_annot_name.csv", what="", sep=",")
+regions_x20_vs_uni <- scan("x20_vs_uni_significant_filt_annot_name.csv", what="", sep=",")
+regions_x36_vs_uni <- scan("x36_vs_uni_significant_filt_annot_name.csv", what="", sep=",")
+regions_x50_vs_uni<- scan("x50_vs_uni_significant_filt_annot_name.csv", what="", sep=",")
 regions_x5_vs_uni_vector <- as.vector(regions_x5_vs_uni)
 regions_x10_vs_uni_vector <- as.vector(regions_x10_vs_uni)
 regions_x20_vs_uni_vector <- as.vector(regions_x20_vs_uni)

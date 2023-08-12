@@ -157,5 +157,30 @@ The **doseclip_deseq2_example.R** R script contains the needed R commands to be 
 should produce a variety of normalized counts files for downsteam analyses. There are also additional commands to produce plots like in the doseCLIP paper (not published yet). 
 The main combined plot needs downstream analyses to be performed before it can be completed. After producing the required normalized counts files, proceed to the next steps.
 ## Step 9: Filtering the normalized counts 
-
-
+After the normalized counts files for both the SM Input/CLIP dataset (all_clip_sm_normalized_counts.csv) and the regular CLIP dataset (all_clip_normalized_counts.csv) have 
+been produced, as well as the SM Input/CLIP dataset SM filtered differential expression files (x50_clip_sm_filtered.csv, x36_clip_sm_filtered.csv, etc.) and the regular CLIP 
+(in comparison to the uniduced) differential expression files (x50_vs_uni_significant.csv, x36_vs_uni_significant.csv, etc.), the regular CLIP produced files can be filtered. 
+The binding regions also need to be annotated with the gene regions and sub-gene regions they are from. This can be done with the **filter_annotate_binding_regions.py** script. 
+This script can be tested using the 'pytest test_filter_annotate_binding_regions.py' command. For instructions on 
+how to use the script, type `python3 filter_annotate_binding_regions.py -h`. Essentially, the script will annotate a SM/CLIP normalized counts file or differential expression 
+file, if no regular CLIP file is also input. If the SM/CLIP DeSeq2 produced file is input with a regular CLIP file, then the SM/CLIP file will be annotated, the 
+regular CLIP file will be annotated, and the regular file will be filtered using the SM filtered events. This will produce a SM filtered regular CLIP differential expression  
+file but with the uninduced vs protein concentration differential expression information. The regular CLIP file normalized counts file will also need to be filtered and 
+annotated. This can be done by concatenating all the different SM filtered protein concentrations (x50_clip_sm_filtered.csv, x36_clip_sm_filtered.csv, etc.) into a single 
+file. Make sure to remove the title lines from the files before concatenating, except for the first title line. The filtered normalized counts are used for multiple later 
+analyses. For a six protein concentration doseCLIP dataset (including uninduced), there should be twelve files produced. One with the regular CLIP normalized counts for all samples (-o_cl 
+parameter in line 1 in the code example below). Five 
+additional files that compared each protein concentration to the uninduced sample set for only the regular CLIP files (-o_cl paramter in line 2 in the code example below). Lastly, six SM/CLIP SM 
+filtered events should be annotated (these require no DeSeq2 produced regular CLIP files to be input when processing- -o_sm parameter in line 2 in the code example below). A GTF file is needed to 
+annotate the binding regions and this should be the 
+same GTF that was used for the RNA-Seq samples (should have been downloaded with the target genome FASTA file). Examples of how to execute thee 
+**filter_annotate_binding_regions.py** script is below. There are two examples, for each of the file types just previously described.
+```
+python3 filter_annotate_binding_regions.py -sm all_clip_sm_filtered_concatenated.csv -gtf target_genomic_gtf_annotation.gtf -o_sm all_clip_sm_filtered_concatenated_annot.csv -clip 
+all_clip_normalized_counts.csv -o_cl all_clip_normalized_counts_filt_annot.csv
+python3 filter_annotate_binding_regions.py -sm x50_clip_sm_filtered.csv -gtf target_genomic_gtf_annotation.gtf -o_sm x50_clip_sm_filtered_annot.csv -clip x50_vs_uni_significant.csv -o_cl 
+x50_vs_uni_significant_filt_annot.csv
+``` 
+To be able to make the MA plot with all datapoints, the five produced files need to be used. To use the code exactly like in the R script, the gene names will need to be copied and pasted into a 
+new file with no column titles (or use a command like awk). These files are the ones that are imported in the R script. Alternatively, the original files can be imported into R and just the gene 
+names extracted. You will need to write the code to do this, if desired.
