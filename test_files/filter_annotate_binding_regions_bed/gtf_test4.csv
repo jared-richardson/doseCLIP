@@ -1,0 +1,11 @@
+# gtf file
+chr1	HAVANA	gene	1	350	.	+	.	gene_id "ENSMUSG00000102693.2"; gene_type "TEC"; gene_name "4933401J01Rik"; level 2; mgi_id "MGI:1918292"; havana_gene "OTTMUSG00000049935.1";
+chr1	HAVANA	transcript	1	200	.	+	.	gene_id "ENSMUSG00000102693.2"; gene_type "TEC"; gene_name "4933401J01Rik"; level 2; mgi_id "MGI:1918292"; havana_gene "OTTMUSG00000049935.1";
+chr1	HAVANA	exon	50	200	.	+	.	gene_id "ENSMUSG00000102693.2"; gene_type "TEC"; gene_name "4933401J01Rik"; level 2; mgi_id "MGI:1918292"; havana_gene "OTTMUSG00000049935.1";
+chr1	HAVANA	3utr	200	275	.	+	.	gene_id "ENSMUSG00000102693.2"; gene_type "TEC"; gene_name "4933401J01Rik"; level 2; mgi_id "MGI:1918292"; havana_gene "OTTMUSG00000049935.1";
+chr1	HAVANA	utr	50	350	.	+	.	gene_id "ENSMUSG00000102693.2"; gene_type "TEC"; gene_name "4933401J01Rik"; level 2; mgi_id "MGI:1918292"; havana_gene "OTTMUSG00000049935.1";
+chr1	HAVANA	gene	250	1000	.	+	.	gene_id "ENSMUSG00000089699.2"; gene_type "lncRNA"; gene_name "Gm1992"; level 2; mgi_id "MGI:3780162"; havana_gene "OTTMUSG00000026352.1";
+chr1	HAVANA	transcript	250	1000	.	-	.	gene_id "ENSMUSG00000089699.2"; gene_type "lncRNA"; gene_name "Gm1992"; level 2; mgi_id "MGI:3780162"; havana_gene "OTTMUSG00000026352.1";
+chr2	HAVANA	gene	1	5000	.	+	.	gene_id "ENSMUSG00000102693"; gene_type "snRNA"; gene_name "gene"; level 2; mgi_id "MGI:1918292"; havana_gene "OTTMUSG00000049935.1";
+chr2	HAVANA	transcript	1	5000	.	+	.	gene_id "ENSMUSG00000102693"; gene_type "snRNA"; gene_name "gene"; level 2; mgi_id "MGI:1918292"; havana_gene "OTTMUSG00000049935.1";
+chr2	HAVANA	utr	299	500	.	+	.	gene_id "ENSMUSG00000102693"; gene_type "snRNA"; gene_name "gene"; level 2; mgi_id "MGI:1918292"; havana_gene "OTTMUSG00000049935.1";

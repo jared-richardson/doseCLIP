@@ -110,7 +110,7 @@ def test_add_events_to_dictionary(filtered_file, regular_gtf_file,
     assert f_a_b_r.add_events_to_dictionary(filtered_file, regular_gtf_file) == (region_dictionary, title_line)
 
 """
-Tests output_file() with different combinations oF DeSeq2 input files and GTF annotations.
+Tests output_file() with different combinations of DeSeq2 input files and GTF annotations.
 
 Data Types:
     sm_filtered_file -- DeSeq2 produced SM counts file (CSV) for a single protein
@@ -236,7 +236,9 @@ def test_output_file(sm_filtered_file, regular_gtf_file, sm_filtered_file_out, s
                      clip_regular_file, clip_regular_file_out, results_list, count_match):
     """
         GIVEN a DeSeq2 produced file that was SM filtered, with or without additional
-            regular, non-filtered CLIP DeSeq2 produced file, and a GTF annotation
+            regular, non-filtered CLIP DeSeq2 produced file, and a GTF annotation, the
+            files are annotated and the regular CLIP file is filtered using the SM filtered
+            file.
         WHEN the function annotates the DeSeq2 input binding regions with the GTF features,
             and filters the addition non-filtered CLIP DeSeq2 events (if input) and outputs
             them in a file.
@@ -250,12 +252,12 @@ def test_output_file(sm_filtered_file, regular_gtf_file, sm_filtered_file_out, s
     f_a_b_r.output_file(sm_filtered_file, regular_gtf_file, sm_filtered_file_out, sample_keyword,
                         clip_regular_file, clip_regular_file_out)
     # Opens testing output files to iterate through to check against
-    # temparory output below.
+    # the expected output in the the results_list.
     read1_opened = open(sm_filtered_file_out, 'r')
     # Checks each line of the output against the expected output
     # in the results_list. Counts should match.
     for line in read1_opened:
-        # Makes line so it is easier to compare.
+        # Cleans line to make it is easier to compare.
         line_clean = line.strip("\n")
         if line_clean in results_list:
             line_count += 1
@@ -263,7 +265,7 @@ def test_output_file(sm_filtered_file, regular_gtf_file, sm_filtered_file_out, s
     assert count_match == line_count 
 
 """
-Tests filter_annotate_binding_regions() with different combinations oF DeSeq2 input files 
+Tests filter_annotate_binding_regions() with different combinations of DeSeq2 input files 
     and GTF annotations.
 
 Data Types:
@@ -379,7 +381,9 @@ def test_filter_annotate_binding_regions(sm_filtered_file, regular_gtf_file, sm_
                                          clip_regular_file, clip_regular_file_out, results_list, count_match):
     """
         GIVEN a DeSeq2 produced file that was SM filtered, with or without additional
-            regular, non-filtered CLIP DeSeq2 produced file, and a GTF annotation
+            regular, non-filtered CLIP DeSeq2 produced file, and a GTF annotation, the
+            files are annotated and the regular CLIP file is filtered using the SM filtered
+            file.
         WHEN the function annotates the DeSeq2 input binding regions with the GTF features,
             and filters the addition non-filtered CLIP DeSeq2 events (if input) and outputs
             them in a file.
@@ -393,12 +397,12 @@ def test_filter_annotate_binding_regions(sm_filtered_file, regular_gtf_file, sm_
     f_a_b_r.filter_annotate_binding_regions(sm_filtered_file, regular_gtf_file, sm_filtered_file_out,
                                             clip_regular_file, clip_regular_file_out)
     # Opens testing output files to iterate through to check against
-    # temparory output below.
+    # the expected output in the the results_list.
     read1_opened = open(sm_filtered_file_out, 'r')
     # Checks each line of the output against the expected output
     # in the results_list. Counts should match.
     for line in read1_opened:
-        # Makes line so it is easier to compare.
+        # Cleans line to make it is easier to compare.
         line_clean = line.strip("\n")
         if line_clean in results_list:
             line_count += 1

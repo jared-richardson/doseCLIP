@@ -47,9 +47,9 @@ Tests output_file() with different BED files.
 Data Types:
     region_dictionary_out -- Filled output dictionary with each read pileup
         region. Contains genomic location information as the value and
-        the full bed line as the key. {"chrom_cord1_cord2": "line_clean"}  
+        the full bed line as the key. {"chrom_cord1_cord2": "line_clean"}.
     joined_gtf_file -- Output BED file. Contains nonrepetitive, comprehensive
-        read pileup regions from each input sample
+        read pileup regions from each input sample.
     results_list -- List of results expected in function produced joined_gtf_file. 
     count_match -- Expected count of matching lines in output and premade
         testing files.    
@@ -65,7 +65,6 @@ Data Types:
                           # results_list
                           (["chr1_pir_gene_100_200_15_+_0.00103521_gene_id \"chr1~100~200~+g\"; gene_version \"1\"; ",
                             "chr1_pir_transcript_100_200_15_+_0.00103521_gene_id \"chr1~100~200~+\"; gene_version \"1\"; transcript_id \"chr1~100~200~+t\"; "]),
-                          #(["chr1_100_200_X_15_+_0.00103521"]),
                           # count_match  
                             (2)),
                          # Test 2: Multi-line BED file.
@@ -94,7 +93,7 @@ def test_output_file(region_dictionary_out, joined_gtf_file,
     """
         GIVEN a BED file dictionary.
         WHEN the function outputs the information in the dictionary
-            to a BED output file
+            to a BED output file.
         THEN the output file is checked for the correct output by
             counting the number of perfectly matching lines.
     """
@@ -104,7 +103,7 @@ def test_output_file(region_dictionary_out, joined_gtf_file,
     # Executes function.
     j_b_r.output_file(region_dictionary_out, joined_gtf_file)
     # Opens testing output files to iterate through to check against
-    # temparory output below.
+    # the expected output in the the results_list.
     read1_opened = open(joined_gtf_file, 'r')
     # Checks each line of the output against the expected output
     # in the results_list. Counts should match.
@@ -145,7 +144,6 @@ Data Types:
                          # results_list
                          (["chr1_pir_gene_100_200_15_+_0.00103521_gene_id \"chr1~100~200~+g\"; gene_version \"1\"; ",
                             "chr1_pir_transcript_100_200_15_+_0.00103521_gene_id \"chr1~100~200~+\"; gene_version \"1\"; transcript_id \"chr1~100~200~+t\"; "]),
-                         #(["chr1_100_200_X_15_+_0.00103521"]),
                          # count_match  
                          (2)),
                          # Test 2: Joined with two BED files, identical entries.
@@ -224,7 +222,7 @@ def test_join_binding_regions(sample_1_bedfile, additional_bedfiles, joined_gtf_
     # Executes function.
     j_b_r.join_binding_regions(sample_1_bedfile, additional_bedfiles, joined_gtf_file)
     # Opens testing output files to iterate through to check against
-    # temporary output below.
+    # the expected output in the the results_list.
     read1_opened = open(joined_gtf_file, 'r')
     # Checks each line of the output against the expected output
     # in the results_list. Counts should match.

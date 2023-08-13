@@ -104,7 +104,8 @@ def add_events_to_dictionary(filtered_file, regular_gtf_file):
                             and (((cordinate1_gtf < cordinate1) and (cordinate1 < cordinate2_gtf)) 
                                 or ((cordinate1_gtf < cordinate2) and (cordinate2 < cordinate2_gtf))
                                 or ((cordinate1_gtf < cordinate1) and (cordinate2 < cordinate2_gtf))
-                                or ((cordinate1_gtf > cordinate1) and (cordinate2 > cordinate2_gtf)))):
+                                or ((cordinate1_gtf > cordinate1) and (cordinate2 > cordinate2_gtf))
+                                or ((cordinate1_gtf == cordinate1) and (cordinate2 == cordinate2_gtf)))):
                             # If GTF is a gene line, saves needed gene information to string for output. 
                             if (line_gtf_split[2] == "gene"):
                                 gene_data = line_gtf_split[8].split(";")
