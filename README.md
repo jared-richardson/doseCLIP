@@ -161,7 +161,7 @@ After the normalized counts files for both the SM Input/CLIP dataset (all_clip_s
 been produced, as well as the SM Input/CLIP dataset SM filtered differential expression files (x50_clip_sm_filtered.csv, x36_clip_sm_filtered.csv, etc.) and the regular CLIP 
 (in comparison to the uniduced) differential expression files (x50_vs_uni_significant.csv, x36_vs_uni_significant.csv, etc.), the regular CLIP produced files can be filtered. 
 The binding regions also need to be annotated with the gene regions and sub-gene regions they are from. This can be done with the **filter_annotate_binding_regions.py** script. 
-This script can be tested using the 'pytest test_filter_annotate_binding_regions.py' command. For instructions on 
+This script can be tested using the `pytest test_filter_annotate_binding_regions.py` command. For instructions on 
 how to use the script, type `python3 filter_annotate_binding_regions.py -h`. Essentially, the script will annotate a SM/CLIP normalized counts file or differential expression 
 file, if no regular CLIP file is also input. If the SM/CLIP DeSeq2 produced file is input with a regular CLIP file, then the SM/CLIP file will be annotated, the 
 regular CLIP file will be annotated, and the regular file will be filtered using the SM filtered events. This will produce a SM filtered regular CLIP differential expression  
@@ -184,3 +184,19 @@ x50_vs_uni_significant_filt_annot.csv
 To be able to make the MA plot with all datapoints, the five produced files need to be used. To use the code exactly like in the R script, the gene names will need to be copied and pasted into a 
 new file with no column titles (or use a command like awk). These files are the ones that are imported in the R script. Alternatively, the original files can be imported into R and just the gene 
 names extracted. You will need to write the code to do this, if desired.
+## Step 9: Determining overlapping binding regions and annotating additional BED file(s).
+In the doseCLIP paper (not published yet), MBNL1 binding regions are compared to a past Mbnl1 HITS-CLIP sample from a 2012 paper (Wang, et al., _Cell_). The HITS-CLIP sample was not 
+made with an SM Input control making it so it could not be processed in the exact same way as the doseCLIP samples. The sample can have adaptors trimmed, PCR duplicates collapsed, 
+reads aligned, and binding regions determined by Piranha. This ends up with a BED file containing aligned regions in the genome significantly above background (standard Piranha 
+output). Although the sample will contain false positives, it is still useful for determining if the doseCLIP libraries were made successfully. The first step is to determine the 
+overlapping regions between the past HITS-CLIP dataset and each filtered doseCLIP sample. This can be performed using the **count_binding_regions.py** script. See the script for 
+execution instructions (`count_binding_regions.py -h`). This script can be tested using the `pytest test_filter_annotate_binding_regions.py` command. The previously annotated SM 
+filtered DeSeq2 produced files 
+(the x50_clip_sm_filtered_annot.csv output file from the example above) 
+should be checked for overlapping events. This means that for a doseCLIP sample set with six protein concentrations, including uninduced, the script should have six DeSeq2 produced 
+files input, with one BED file. The script will produce a text file with the counts of overlapping events for each DeSeq2 produced file. These numbers can be used to make a figure 
+showing the numbers of overlapping regions. Next, the Piranha produced BED file itself (from the past HITS-CLIP sample) can be annotated. This can be performed using the 
+**filter_annotate_binding_regions_bed.py** script. See the script for execution instructions ('python3 filter_annotate_binding_regions_bed.py -h'). Again, this script can be tested 
+using the `pytest 
+test_filter_annotate_binding_regions_bed.py` command. The script needs a GTF file (should be the same one used to annotate the DeSeq2 produced files in the previous step) and will 
+produce an annotated BED file. This file can be used in the next step to determine the genomic distribution of the binding regions.
