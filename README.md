@@ -5,7 +5,7 @@ order of each steps.
 ## Step 1: Adapter trimming and PCR duplicate removal.
 The first step is use Cutadapt to trim the reads. Please see the Cutadapt guide (https://cutadapt.readthedocs.io/en/stable/guide.html) for 
 more information. The command I use for the first trim is  
-as follows. The parameter -j should be set to the number of cores desired to be used when executing.
+as follows. The parameter `-j` should be set to the number of cores desired to be used when executing.
 ```
 cutadapt -f fastq --match-read-wildcards --nextseq-trim=10 -q 10 --times 1  -e 0.05  -O 10 -m 18 -j 1 \
 -y '{name}' \
@@ -35,7 +35,7 @@ The next step is read alignment. Previously, I used to trim the reads a second t
 aligners, as the effectiveness of soft clipping varies by aligner. Minimap2 is highly effective at aligning regions that match genomic regions, 
 making it so a second trimming is not necessary. The first trim would not be necessary either, if it not for the need to remove PCR duplicates. 
 PCR duplicates are identified using the UMI sequence that itself is identified as being immediately adjacent to the adapter sequence. I used 
-Minimap2 for aligning and the following is the command I use. The -t parameter is used to specify the number of threads desired to be used.
+Minimap2 for aligning and the following is the command I use. The `-t` parameter is used to specify the number of threads desired to be used.
 ```  
 minimap2 -t 1 -ax sr genomic_target_file.fasta input_fastq_file_read1.fastq input_fastq_file_read2.fastq > output_alignment_file.sam
 ```
@@ -52,13 +52,13 @@ samtools view -S -b input_alignment_file.sorted.sam > output_alignment_file.sort
 For more information on samtools, please see the samtools manual- http://www.htslib.org/doc/samtools.html.
 After using samtools, bedtools will need to be used to convert the BAM filse to BED files. The bedtools manual can be found here- 
 https://bedtools.readthedocs.io/en/latest/. The command I use is below.
-''' 
+``` 
 bedtools bamtobed -i output_alignment_file.sorted.bam > output_alignment_file.sorted.bed
-'''
+```
 ## Step 4: Using Piranha to determine read pileup locations and make custom annotation.
 With the bed files, use Piranha to determine the bounderies of aligned reads. This only needs to be performed on the regular CLIP and the SM samples. 
 These regions will be used to build a custom GTF file that can be used to count read pileups in these regions. The Piranha manual can be found 
-here- http://smithlabresearch.org/software/piranha/. The command I use for the program is below. The -z parameter is for the bin size and should 
+here- http://smithlabresearch.org/software/piranha/. The command I use for the program is below. The `-z` parameter is for the bin size and should 
 be equal to the raw length of each input read.
 ```
 Piranha -z 75 -u 0 -a 0.98 -s -o output_piranha_alignment_file.sorted.bed input_alignment_file.sorted.bed
@@ -72,8 +72,8 @@ analyses involving normalized counts. A second GTF file should be generated usin
 regions that are likely not authentically RBP bound regions. 
 ## Step 5: Counting the reads.
 Now the reads are ready to be counted. Count all the CLIP and SM samples in two separate iterations. To count the reads I use subread. The page for subread can be found here- 
-https://subread.sourceforge.net/. The command I use is below. -T should be set to the number of threads desired to be used when running. All 
-HITS-CLIP samples developed for each doseCLIP experiment should be counted together. The '-a' parameter should be the joined GTF file from the previous step. One counts file
+https://subread.sourceforge.net/. The command I use is below. `-T` should be set to the number of threads desired to be used when running. All 
+HITS-CLIP samples developed for each doseCLIP experiment should be counted together. The `-a` parameter should be the joined GTF file from the previous step. One counts file
 should be produced using the GTF that was generated using only the regular CLIP samples. This count file should only count the regular CLIP sample reads. A second count file
 should be produced using the regular CLIP samples and the SM Input controls. The GTF file used for these counts should be the one that was generated using the SM Input 
 controls and the regular CLIP samples. 
@@ -114,7 +114,7 @@ prepared for each, the data can be input into DeSeq2 for differential expression
 At this point it is advantageous to process the RNA-Seq data. Many of the steps are the same as with the CLIP data, except for the following differences. There of course are 
 no SM controls for the RNA-Seq samples, so do not worry about these. The first step for the RNA-Seq samples (after ensuring they are of sufficient quality- this can be done 
 with a tool like FastQC), is to align the reads. This can be performed using STAR for alignment. First an index of the target genomic sequence needs to be made. An example of 
-the commands I use are below. The manual for STAR can be found here- https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf. The --runThreadN parameter should be 
+the commands I use are below. The manual for STAR can be found here- https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf. The `--runThreadN` parameter should be 
 set to the number of threads desired to be used and the --limitGenomeGenerateRAM parameter to the max RAM desired to be used.
 ```
 STAR --runThreadN 32 --runMode genomeGenerate --genomeDir genomic_target_index_directory \
@@ -137,7 +137,7 @@ together. After this, the counts file should be prepared for DeSeq2, just like f
 RNA-Seq samples combined. The DeSeq2 phenotype file will also need to be prepared for the RNA-Seq samples. This file should contain all the RNA-Seq samples and again be 
 separate. After preparing the files for DeSeq2, the splicing analysis can be performed. I use rMATS (turbo) for this. The rMATS manual can be found here- 
 https://rnaseq-mats.sourceforge.net/rmats4.0.2/user_guide.htm. The command I use is below. The alternative splicing analysis should be performed comparing the uninduced 
-samples versus each induced protein concentration. So for five induced sample sets and one uninduced sample set, there should be five rMATS analyses performed. The --nthread
+samples versus each induced protein concentration. So for five induced sample sets and one uninduced sample set, there should be five rMATS analyses performed. The `--nthread`
 parameter is how many threads are desired when running.
 ```
 rmats.py --b1 x5_sample_set.csv \
@@ -148,9 +148,9 @@ rmats.py --b1 x5_sample_set.csv \
 ```
 The x5_sample_set.csv should be a CSV file with the locations of the BAM files for each replicate in a sample set. For example, the contents of the x5_sample_set.csv file 
 would be like below.
-'''
+```
 x5_sample_1.sorted.bam,x5_sample_2.sorted.bam,x5_sample_3.sorted.bam
-'''
+```
 The splicing analysis results can be saved for later analyses.
 ## Step 8: DeSeq2 analysis.
 The **doseclip_deseq2_example.R** R script contains the needed R commands to be able to process the data. Edit the script for your samples and execute the commands. This 
@@ -168,10 +168,12 @@ regular CLIP file will be annotated, and the regular file will be filtered using
 file but with the uninduced vs protein concentration differential expression information. The regular CLIP file normalized counts file will also need to be filtered and 
 annotated. This can be done by concatenating all the different SM filtered protein concentrations (x50_clip_sm_filtered.csv, x36_clip_sm_filtered.csv, etc.) into a single 
 file. Make sure to remove the title lines from the files before concatenating, except for the first title line. The filtered normalized counts are used for multiple later 
-analyses. For a six protein concentration doseCLIP dataset (including uninduced), there should be twelve files produced. One with the regular CLIP normalized counts for all samples (-o_cl 
-parameter in line 1 in the code example below). Five 
-additional files that compared each protein concentration to the uninduced sample set for only the regular CLIP files (-o_cl paramter in line 2 in the code example below). Lastly, six SM/CLIP SM 
-filtered events should be annotated (these require no DeSeq2 produced regular CLIP files to be input when processing- -o_sm parameter in line 2 in the code example below). A GTF file is needed to 
+analyses. For a six protein concentration doseCLIP dataset (including uninduced), there should be twelve files produced. One with the regular CLIP normalized counts for all samples 
+(`-o_cl` parameter in line 1 in the code example below). Five 
+additional files that compared each protein concentration to the uninduced sample set for only the regular CLIP files (`-o_cl` paramter in line 2 in the code example below). Lastly, 
+six SM/CLIP SM 
+filtered events should be annotated (these require no DeSeq2 produced regular CLIP files to be input when processing- `-o_sm` parameter in line 2 in the code example below). A GTF 
+file is needed to 
 annotate the binding regions and this should be the 
 same GTF that was used for the RNA-Seq samples (should have been downloaded with the target genome FASTA file). Examples of how to execute thee 
 **filter_annotate_binding_regions.py** script is below. There are two examples, for each of the file types just previously described.
@@ -196,7 +198,7 @@ filtered DeSeq2 produced files
 should be checked for overlapping events. This means that for a doseCLIP sample set with six protein concentrations, including uninduced, the script should have six DeSeq2 produced 
 files input, with one BED file. The script will produce a text file with the counts of overlapping events for each DeSeq2 produced file. These numbers can be used to make a figure 
 showing the numbers of overlapping regions. Next, the Piranha produced BED file itself (from the past HITS-CLIP sample) can be annotated. This can be performed using the 
-**filter_annotate_binding_regions_bed.py** script. See the script for execution instructions ('python3 filter_annotate_binding_regions_bed.py -h'). Again, this script can be tested 
+**filter_annotate_binding_regions_bed.py** script. See the script for execution instructions (`python3 filter_annotate_binding_regions_bed.py -h`). Again, this script can be tested 
 using the `pytest 
 test_filter_annotate_binding_regions_bed.py` command. The script needs a GTF file (should be the same one used to annotate the DeSeq2 produced files in the previous step) and will 
 produce an annotated BED file. This file can be used in the next step to determine the genomic distribution of the binding regions.
