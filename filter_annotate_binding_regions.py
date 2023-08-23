@@ -77,7 +77,7 @@ def add_events_to_dictionary(filtered_file, regular_gtf_file):
             line_clean = line.strip("\n")
             line_split = line_clean.split(",")
             # Looks for and saves title line. Passes line after saving.
-            if len(line_split[0]) == 0:
+            if (len(line_split[0]) == 0 or (line_clean[1] == '"')):
                 title_line = line_clean
                 continue
             # Used to save gene and sub-gene information, for addition
