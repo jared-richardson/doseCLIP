@@ -45,13 +45,12 @@ def count_binding_regions(deseq2_files, region_bed_file, counts_file_csv):
                             chrom2, cord12, cord22, strand2 = (line_sep2[0], int(line_sep2[1]),
                                                               int(line_sep2[2]), line_sep2[5])
                             # Looks for any overlapping events from both files. If finds overlapping
-                            # event, adds one to the count.   
-                            if ((chrom == chrom2 and (strand == strand2)
-                                and (((cord1 < cord12) and (cord12 < cord2))
-                                or ((cord1 < cord22) and (cord22 < cord2))
-                                or ((cord1 < cord12) and (cord22 < cord2))
-                                or ((cord1 > cord12) and (cord22 > cord2))
-                                or ((cord1 == cord12) and (cord22 == cord2))))):
+                            # event, adds one to the count.
+                            if (((chrom == chrom2) and (strand == strand2))
+                                and (((cord1 <= cord12) and (cord12 <= cord2))
+                                or ((cord1 <= cord22) and (cord22 <= cord2))
+                                or ((cord1 <= cord12) and (cord22 <= cord2))
+                                or ((cord1 >= cord12) and (cord22 >= cord2)))):
                                 count += 1
         # Writes out file names and overlapping counts.                                                    
         counts_file_csv_out.write(f"{file_name},{file_name2},{count}\n")

@@ -47,6 +47,8 @@ def join_binding_regions(sample_1_bedfile, additional_bedfiles, joined_gtf_file)
             # Makes sure the two dictionaries are not pointing to the same object.
             region_dictionary_out = {}
         with open(bedfile) as open_bedfile:
+            # Resets set.
+            region_set_added = set()
             for line in open_bedfile:
                 # Replaces tabs with underscore. This makes it so the literal tab
                 # characters do not get stored in the dictionary, making it more 
@@ -64,7 +66,8 @@ def join_binding_regions(sample_1_bedfile, additional_bedfiles, joined_gtf_file)
                         region_set_added.add(f"{chrom}_{cord1}_{cord2}_{strand}")
                     # If one of the coordinates matches, checks for larger coordinate. Whatever
                     # event is larger gets added to output dictionary.    
-                    elif (((chrom == chrom2 and strand == strand2) and (cord1 == cord12)) or ((chrom == chrom2) and (cord2 == cord22))):
+                    elif (((chrom == chrom2 and strand == strand2) and (cord1 == cord12)) 
+                          or ((chrom == chrom2 and strand == strand2) and (cord2 == cord22))):
                         if ((cord2 < cord22) or ((cord1 > cord12))):
                             region_dictionary_out[f"{chrom2}_{cord12}_{cord22}_{strand2}"] = line_clean
                         else:
@@ -72,31 +75,31 @@ def join_binding_regions(sample_1_bedfile, additional_bedfiles, joined_gtf_file)
                         region_set_added.add(f"{chrom2}_{cord12}_{cord22}_{strand2}")
                         region_set_added.add(f"{chrom}_{cord1}_{cord2}_{strand}")
                     # Checks if the initial event is overlapping and is larger than the event being compared for both coordinates.
-                    elif ((chrom == chrom2 and strand == strand2) and (cord1 < cord12) and (cord2 > cord22)):
+                    elif ((chrom == chrom2 and strand == strand2) and (cord1 <= cord12) and (cord2 >= cord22)):
                         updated_line = f"{chrom2}_{cord1}_{cord2}_{line_sep[3]}_{line_sep[4]}_{line_sep[5]}_{line_sep[6]}"
                         region_dictionary_out[f"{chrom2}_{cord1}_{cord2}_{strand2}"] = updated_line
                         region_set_added.add(f"{chrom2}_{cord12}_{cord22}_{strand2}")
                         region_set_added.add(f"{chrom}_{cord1}_{cord2}_{strand}")
                     # Checks if the second event is overlapping and is larger than the event being compared both coordinates.
-                    elif ((chrom == chrom2 and strand == strand2) and (cord1 > cord12) and (cord2 < cord22)):
+                    elif ((chrom == chrom2 and strand == strand2) and (cord1 >= cord12) and (cord2 <= cord22)):
                         updated_line = f"{chrom2}_{cord12}_{cord22}_{line_sep[3]}_{line_sep[4]}_{line_sep[5]}_{line_sep[6]}"
                         region_dictionary_out[f"{chrom2}_{cord12}_{cord22}_{strand2}"] = updated_line
                         region_set_added.add(f"{chrom2}_{cord12}_{cord22}_{strand2}")
                         region_set_added.add(f"{chrom}_{cord1}_{cord2}_{strand}")
                     # Checks if events are overlapping but but first event, first coordinate starts earlier and second event, second
                     # coordinate ends later in alignment to target sequence.
-                    elif ((chrom == chrom2 and strand == strand2) and (cord1 < cord12) and (cord12 < cord2) and (cord22 > cord2)):
+                    elif ((chrom == chrom2 and strand == strand2) and (cord1 <= cord12) and (cord12 <= cord2) and (cord22 >= cord2)):
                         updated_line = f"{chrom2}_{cord1}_{cord22}_{line_sep[3]}_{line_sep[4]}_{line_sep[5]}_{line_sep[6]}"
                         region_dictionary_out[f"{chrom2}_{cord1}_{cord22}_{strand2}"] = updated_line
                         region_set_added.add(f"{chrom2}_{cord12}_{cord22}_{strand2}")
                         region_set_added.add(f"{chrom}_{cord1}_{cord2}_{strand}")
                     # Checks if events are overlapping but but second event, first coordinate starts earlier and first event, second
                     # coordinate ends later in alignment to target sequence.    
-                    elif ((chrom == chrom2 and strand == strand2) and (cord1 > cord12) and (cord1 < cord22) and (cord2 > cord22)):
+                    elif ((chrom == chrom2 and strand == strand2) and (cord1 >= cord12) and (cord1 <= cord22) and (cord2 >= cord22)):
                         updated_line = f"{chrom2}_{cord12}_{cord2}_{line_sep[3]}_{line_sep[4]}_{line_sep[5]}_{line_sep[6]}"
                         region_dictionary_out[f"{chrom2}_{cord12}_{cord2}_{strand2}"] = updated_line
                         region_set_added.add(f"{chrom2}_{cord12}_{cord22}_{strand2}")
-                        region_set_added.add(f"{chrom}_{cord1}_{cord2}_{strand}") 
+                        region_set_added.add(f"{chrom}_{cord1}_{cord2}_{strand}")
         # Sets to true since one comparison has been completed.    
         first_bed_boolean = True
         # Loops through events in original and second input BED file and checks for events that
@@ -106,7 +109,7 @@ def join_binding_regions(sample_1_bedfile, additional_bedfiles, joined_gtf_file)
                 region_dictionary_out[key] = region_dictionary_check.get(key)
         for key in region_dictionary:
             if key not in region_set_added:
-                region_dictionary_out[key] = region_dictionary.get(key)                                  
+                region_dictionary_out[key] = region_dictionary.get(key)                                             
     output_file(region_dictionary_out, joined_gtf_file)                            
 
 def add_events_to_dictionary(sample_1_bedfile):
@@ -153,7 +156,7 @@ def output_file(region_dictionary_out, joined_gtf_file):
     joined_gtf_file_out = open(joined_gtf_file, 'w')
     # Initializes list used for sorting events before output.
     sorted_list = []
-    # Iterates through dictionary and adds event to list.                        
+    # Iterates through dictionary and adds event to list.                       
     for key in region_dictionary_out:
         sorted_list.append(region_dictionary_out.get(key))
     # Sorts list.    

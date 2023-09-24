@@ -1,0 +1,9 @@
+Sub-Gene Type,Sub-Gene Count
+exon,6
+CDS,3
+3_UTR,2
+5_UTR,3
+start_codon,3
+stop_codon,1
+intergenic,3
+intron,3

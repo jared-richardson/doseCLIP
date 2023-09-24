@@ -114,7 +114,7 @@ def test_output_file(region_dictionary_out, joined_gtf_file,
             line_count += 1
     # Checks line counts.
     assert count_match == line_count 
-
+    read1_opened.close()
 """
 Tests join_binding_regions() with read pileup regions
 
@@ -177,8 +177,8 @@ Data Types:
                           # results_list
                           (["chr1_pir_gene_100_250_15_+_0.00103521_gene_id \"chr1~100~250~+g\"; gene_version \"1\"; ",
                             "chr1_pir_transcript_100_250_15_+_0.00103521_gene_id \"chr1~100~250~+\"; gene_version \"1\"; transcript_id \"chr1~100~250~+t\"; ",
-                            "chr1_pir_gene_100_1000_15_-_0.00111111_gene_id \"chr1~100~1000~-g\"; gene_version \"1\"; ",
-                            "chr1_pir_transcript_100_1000_15_-_0.00111111_gene_id \"chr1~100~1000~-\"; gene_version \"1\"; transcript_id \"chr1~100~1000~-t\"; ",
+                            "chr1_pir_gene_100_2000_15_-_0.00111111_gene_id \"chr1~100~2000~-g\"; gene_version \"1\"; ",
+                            "chr1_pir_transcript_100_2000_15_-_0.00111111_gene_id \"chr1~100~2000~-\"; gene_version \"1\"; transcript_id \"chr1~100~2000~-t\"; ",
                             "chr1_pir_gene_275_500_15_+_0.00103521_gene_id \"chr1~275~500~+g\"; gene_version \"1\"; ",
                             "chr1_pir_transcript_275_500_15_+_0.00103521_gene_id \"chr1~275~500~+\"; gene_version \"1\"; transcript_id \"chr1~275~500~+t\"; ",
                             "chr1_pir_gene_525_1000_15_+_0.00103521_gene_id \"chr1~525~1000~+g\"; gene_version \"1\"; ",
@@ -233,3 +233,4 @@ def test_join_binding_regions(sample_1_bedfile, additional_bedfiles, joined_gtf_
             line_count += 1
     # Checks line counts.
     assert count_match == line_count
+    read1_opened.close()

@@ -153,5 +153,6 @@ def test_deduplicate_fastq(tmpdir, fastq_read1, fastq_read2,
         if (fastq_temp_2.read().find(line) > -1):
             line_count += 1
     # Checks line counts.
-    assert count_match == line_count              
+    assert count_match == line_count
+    read1_opened.close()            
     

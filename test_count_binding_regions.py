@@ -61,10 +61,10 @@ Data Types:
                           # results_list
                           (["DeSeq2_filename,BED_filename,Overlapping_count",
                             "deseq2_differential_expression2.csv,test2.bed,7",
-                            "deseq2_differential_expression2.csv,test2.bed,7",
-                            "deseq2_differential_expression2.csv,test2.bed,3"]),
+                            "deseq2_differential_expression3.csv,test2.bed,7",
+                            "deseq2_differential_expression4.csv,test2.bed,3"]),
                           # count_match  
-                            (2)),     
+                            (4)),     
                          ])
 
 def test_count_binding_regions(deseq2_files, region_bed_file, counts_file_csv, \
@@ -95,3 +95,4 @@ def test_count_binding_regions(deseq2_files, region_bed_file, counts_file_csv, \
             line_count += 1
     # Checks line counts.
     assert count_match == line_count
+    read1_opened.close()

@@ -42,18 +42,18 @@ def filter_annotate_binding_regions(sm_filtered_file, regular_gtf_file, sm_filte
     # for filtering and annotation.   
     if clip_regular_file != None:
         output_file(sm_filtered_file, regular_gtf_file, sm_filtered_file_out,
-                     "CLIP", clip_regular_file, clip_regular_file_out)          
+                     "CLIP", clip_regular_file, clip_regular_file_out)   
                         
 def add_events_to_dictionary(filtered_file, regular_gtf_file):
     """Takes an input counts file, annotates it and adds to a dictionary
         for output.
 
         Arguments:
-        filtered_file -- DeSeq2 produced SM counts file (CSV) for a single protein
-            concentration (produced with replicates). This should have been analyzed
-            and normalized with DeSeq2 with the regular CLIP samples and the the SM 
-            Input samples. Also, this file could be the filtered differential expression
-            output file or the normalized counts file.
+        filtered_file -- DeSeq2 produced SM counts file or CLIP file (CSV) for a 
+            single protein concentration (produced with replicates). This should have 
+            been analyzed and normalized with DeSeq2 with the regular CLIP samples and 
+            the the SM Input samples. Also, this file could be the filtered 
+            differential expression output file or the normalized counts file.
         regular_gtf_file -- Gencode/Ensembl/UCSC provided GTF file. Should be the GTF
             annotation for the target alignment sequence. The file is used to annotate
             the binding regions.
@@ -69,8 +69,12 @@ def add_events_to_dictionary(filtered_file, regular_gtf_file):
     region_dictionary = {}
     # Saves title line.
     title_line = ""
+    # Sets variables for transcript coordinates. Used to determine what type
+    # of UTR is present, 5' or 3'.
+    transcript_cord1 = 0
+    transcript_cord2 = 0
     # Iterates through each line in the counts file (CSV) and adds it to the dictionary.
-    # Also, looks for gene and sub-gene information from GTF file.                       
+    # Also, looks for gene and sub-gene information from GTF file.                     
     with open(filtered_file) as open_filtered_file:
         for line in open_filtered_file:
             # Cleans and parses line.
@@ -99,15 +103,16 @@ def add_events_to_dictionary(filtered_file, regular_gtf_file):
                         chromosome_gtf, cordinate1_gtf = line_gtf_split[0], int(line_gtf_split[3])
                         cordinate2_gtf, strand_gtf = int(line_gtf_split[4]), line_gtf_split[6] 
                         # Checks for identical chromosome, strand, and overlap between the
-                        # binding region and the gene/sub-gene feature. 
+                        # binding region and the gene/sub-gene feature.
                         if ((chromosome == chromosome_gtf) and (strand == strand_gtf)
-                            and (((cordinate1_gtf < cordinate1) and (cordinate1 < cordinate2_gtf)) 
-                                or ((cordinate1_gtf < cordinate2) and (cordinate2 < cordinate2_gtf))
-                                or ((cordinate1_gtf < cordinate1) and (cordinate2 < cordinate2_gtf))
-                                or ((cordinate1_gtf > cordinate1) and (cordinate2 > cordinate2_gtf))
-                                or ((cordinate1_gtf == cordinate1) and (cordinate2 == cordinate2_gtf)))):
+                            and (((cordinate1_gtf <= cordinate1) and (cordinate1 <= cordinate2_gtf)) 
+                                or ((cordinate1_gtf <= cordinate2) and (cordinate2 <= cordinate2_gtf))
+                                or ((cordinate1_gtf <= cordinate1) and (cordinate2 <= cordinate2_gtf))
+                                or ((cordinate1_gtf >= cordinate1) and (cordinate2 >= cordinate2_gtf)))):
+                            # Saves the event feature (type) as a variable.
+                            event_type = line_gtf_split[2]
                             # If GTF is a gene line, saves needed gene information to string for output. 
-                            if (line_gtf_split[2] == "gene"):
+                            if (event_type == "gene"):
                                 gene_data = line_gtf_split[8].split(";")
                                 gene_id_pre = gene_data[0].split('"')
                                 gene_id = gene_id_pre[1]
@@ -124,11 +129,26 @@ def add_events_to_dictionary(filtered_file, regular_gtf_file):
                                 else:
                                     gene_line = f"{gene_line}~{gene_id}~{gene_type}~{gene_name}"
                             # Performs same as above for the gene line but for sub-gene features.            
-                            elif (line_gtf_split[2] != "transcript"):
+                            if ((event_type != "transcript") and (event_type != "gene")):
+                                # Classifies UTR type. If first coordinate is closer to first transcript
+                                # coordinate, classifies as a 5' UTR, else classifies as 3' UTR.
+                                if (event_type == "UTR"):
+                                    utr_cord1 = int(line_gtf_split[3])
+                                    utr_cord2 = int(line_gtf_split[4])
+                                    cord1_difference = abs(transcript_cord1 - utr_cord1)
+                                    cord2_difference = abs(transcript_cord2 - utr_cord2)
+                                    if (cord1_difference > cord2_difference):
+                                        event_type = "3_UTR"
+                                    else:
+                                        event_type = "5_UTR"      
                                 if len(sub_gene_line) == 0:
-                                    sub_gene_line = line_gtf_split[2]
+                                    sub_gene_line = event_type
                                 else:    
-                                    sub_gene_line = f"{sub_gene_line}~{line_gtf_split[2]}"
+                                    sub_gene_line = f"{sub_gene_line}~{event_type}"
+                            # If transcript feature, saves coordinates to determine UTR type.        
+                            if (event_type == "transcript"):
+                                transcript_cord1 = int(line_gtf_split[3])
+                                transcript_cord2 = int(line_gtf_split[4])   
             # Adds all information to region_dictionary for output.
             region_dictionary[line_split[0]] = f"{line_clean}={gene_line}={sub_gene_line}" 
     open_filtered_file.close()
@@ -163,23 +183,31 @@ def output_file(sm_filtered_file, regular_gtf_file, sm_filtered_file_out, sample
         Output:    
         sm_filtered_file_out -- Output normalized SM filtered counts or SM differential 
             expression file (this is output from sm_filtered_file). The file will 
-            be annotated. The file is in CSV format.
+            be annotated. The file is in CSV format. 
+            File format (Title line is orignal from file):
+            title_line, gene_id, gene_type, gene_name, sub_gene_type, all_genes, all_sub_gene_types
         clip_regular_file_out -- Output normalized regular CLIP filtered counts or 
             CLIP differential expression file (this is output from clip_regular_file). 
             The file will be annotated and filtered with the SM filtered binding regions.
             The file is in CSV format. This is an OPTIONAL parameter, as the script is 
             able to just annotate the SM filtered counts as well.
+            File format (Title line is orignal from file):
+            title_line, gene_id, gene_type, gene_name, sub_gene_type, all_genes, all_sub_gene_types
     """
     # Initializes variables needed to be iterated through.
     region_dictionary_sm = {}
     region_dictionary = {}
+    # If CLIP data dictionary is ued for filtered data, if SM outputs all events.
+    region_dictionary_count = {}
     # Stores annotated binding regions in dictionary and writes out the modified title line.
     if sample_keyword == "SM":
-        region_dictionary, title_line = add_events_to_dictionary(sm_filtered_file, regular_gtf_file)
+        region_dictionary_count, title_line = add_events_to_dictionary(sm_filtered_file, regular_gtf_file)
         # Modifies title line for new annotated output.
         title_line = f"{title_line},gene_id,gene_type,gene_name,sub_gene_type,all_genes,all_sub_gene_types"
         file_out_open = open(sm_filtered_file_out, "w")
         file_out_open.write(title_line + "\n")
+        # Counts and outputs sub-gene types for the sample.
+        count_and_output_sub_genes(region_dictionary_count, sm_filtered_file_out, None)
     # Stores annotated binding regions in dictionary and writes out the modified title line.    
     elif sample_keyword == "CLIP":
         region_dictionary, title_line = add_events_to_dictionary(clip_regular_file, regular_gtf_file)
@@ -188,14 +216,20 @@ def output_file(sm_filtered_file, regular_gtf_file, sm_filtered_file_out, sample
         # Modifies title line for new annotated output.
         title_line = f"{title_line},gene_id,gene_type,gene_name,sub_gene_type,all_genes,all_sub_gene_types"
         file_out_open = open(clip_regular_file_out, "w")
-        file_out_open.write(title_line + "\n")   
+        file_out_open.write(title_line + "\n")
+        # Filters CLIP dictionary with SM data.
+        for event in region_dictionary:
+            if event in region_dictionary_sm:
+                region_dictionary_count[event] = (region_dictionary.get(event))
+        # Counts and outputs sub-gene types for the sample.
+        count_and_output_sub_genes(region_dictionary_count, None, clip_regular_file_out)
     # Iterates through dictionary and outputs each annotated binding region.           
-    for region in region_dictionary:
+    for region in region_dictionary_count:
         # Strings used to output multiple genes or sub-genes. 
         # This should be rare.
         all_genes = ""
         all_sub_genes = ""
-        region_line = region_dictionary.get(region)
+        region_line = region_dictionary_count.get(region)
         region_split = region_line.split("=")
         # Checks for multiple gene entries and outputs appropriately.
         if (region_split[1].find("~") != -1):
@@ -218,12 +252,115 @@ def output_file(sm_filtered_file, regular_gtf_file, sm_filtered_file_out, sample
         else:               
             sub_gene = region_split[2]
         output = f"{region_split[0]},{gene},{sub_gene},{all_genes},{all_sub_genes}"
-        if sample_keyword == "SM":
-            file_out_open.write(output + "\n")
-        elif (sample_keyword == "CLIP" and region in region_dictionary_sm):
-            file_out_open.write(output + "\n")
+        file_out_open.write(output + "\n")
     file_out_open.close()
 
+def count_and_output_sub_genes(region_dictionary, sm_filtered_file_out, clip_regular_file_out):
+    """Takes an input region dictionary and outputs counts of annotation information.
+
+        Arguments:
+        region_dictionary -- Filled output dictionary with each binding region names
+            as the key and the clean line as the value.
+            {"region_name": "line_clean=gene_line=sub_gene_line"}.
+            
+        Output:    
+        sm_filtered_file_out -- Output of annotation counts for normalized SM filtered 
+            counts or SM differential expression file (this is output from sm_filtered_file). 
+            The file is in CSV format. File contains a ".annotation_counts.csv" suffix. If no
+            input (both files will not be input at once), None is input and output will be
+            ignored.
+            File Format: Sub-Gene Type, Sub-Gene Count
+        clip_regular_file_out -- Output of annotation counts for normalized regular CLIP 
+            filtered counts or CLIP differential expression file (this is output from 
+            clip_regular_file). The file will be annotated and filtered with the SM 
+            filtered binding regions. The file is in CSV format. This is an OPTIONAL 
+            parameter, as the script is able to just annotate the SM filtered counts 
+            as well. File contains a ".annotation_counts.csv" suffix. If no input 
+            (both files will not be input at once), None is input and output will be
+            ignored.
+            File Format: Sub-Gene Type, Sub-Gene Count
+    """
+    # Initializes dictionary for sub-gene regions and counts.
+    # [sub_gene] = sub_gene_count
+    sub_gene_dictionary = {}
+    # Checks for the file that was input. Adds the ".annotation_counts.csv" suffix to the
+    # output file name and opens the file for writing.
+    if clip_regular_file_out == None:
+        sm_filtered_file_out = sm_filtered_file_out.replace(".csv", ".annotation_counts.csv")
+        file_out_open = open(sm_filtered_file_out, "w")
+    else:
+        clip_regular_file_out = clip_regular_file_out.replace(".csv", ".annotation_counts.csv")
+        file_out_open = open(clip_regular_file_out, "w")
+    # Iterates through dictionary and outputs each annotated binding region.          
+    for region in region_dictionary:
+        # Sets gene_flag boolean to indicate if region was present in
+        # a gene.
+        gene_flag = False
+        # Strings used to output multiple genes or sub-genes. 
+        # This should be rare.
+        all_genes = ""
+        all_sub_genes = ""
+        region_line = region_dictionary.get(region)
+        region_split = region_line.split("=")
+        # Checks for multiple gene entries and saves as variables. Not all
+        # variables are output at this point. Saved for later script 
+        # modifications.
+        if (region_split[1].find("~") != -1):
+            gene_flag = True
+            gene_split = region_split[1].split("~")
+            gene = f"{gene_split[0]},{gene_split[1]},{gene_split[2]}"    
+            if len(gene_split) > 3:
+                all_genes = region_split[1]
+        else:
+            # Checks for no annotated genes. Adds commas so columns will
+            # be an empty value if if no genes were found.
+            # Sets boolean gene_flag to false because no gene was annotated
+            # for the binding region.
+            if len(region_split[1]) != 0:
+                gene_flag = True
+                gene = region_split[1]
+            else:
+                gene = ",,"
+        # Checks sub-genes and categorizes and counts for proper output.
+        # Checks for multiple sub-gene entries and iterates through, using
+        # rules to classify and catagorize the sub-gene appropriately.
+        if (region_split[2].find("~") != -1):
+            sub_gene_split = region_split[2].split("~")
+            for sub_gene_list in sub_gene_split:
+                # If CDS, then overrides other sub-types.
+                if sub_gene_list == "CDS":
+                    sub_gene = "CDS"
+                    break
+                # If start or stop codon, this is just classified as an exon.
+                elif ((sub_gene_list == "start_codon") or (sub_gene_list == "stop_codon")):
+                    sub_gene = "exon"
+                # Only remaining should be exon.
+                else:
+                   sub_gene = sub_gene_list      
+            # Saves all in-case of future code revisions and use.       
+            all_sub_genes = region_split[2]
+        else:               
+            sub_gene = region_split[2]
+        # If in a gene but no sub-gene type, classified as an intron.    
+        if ((len(sub_gene) == 0) and (gene_flag == True)):
+            sub_gene = "intron"
+        # If not in gene or intron, classified as intergenic.     
+        elif ((len(sub_gene) == 0) and (gene_flag == False)):
+            sub_gene = "intergenic"
+        # Adds sub-gene to dictionary with proper count as key.
+        if sub_gene not in sub_gene_dictionary:
+             sub_gene_dictionary[sub_gene] = 1
+        else:
+             sub_gene_count = sub_gene_dictionary.get(sub_gene)
+             sub_gene_count = (sub_gene_count + 1)
+             sub_gene_dictionary[sub_gene] = sub_gene_count       
+    # Writes out each sub-gene type and count.         
+    file_out_open.write("Sub-Gene Type,Sub-Gene Count\n")
+    for sub_gene in sub_gene_dictionary:
+        sub_gene_count = sub_gene_dictionary.get(sub_gene)
+        output = f"{sub_gene},{sub_gene_count}\n"
+        file_out_open.write(output)
+    file_out_open.close()
 
 def init_argparse():
     """Initiates the use of argparse. Returns parsed
