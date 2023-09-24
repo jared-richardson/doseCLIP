@@ -181,6 +181,10 @@ all_clip_normalized_counts.csv -o_cl all_clip_normalized_counts_filt_annot.csv
 python3 filter_annotate_binding_regions.py -sm x50_clip_sm_filtered.csv -gtf target_genomic_gtf_annotation.gtf -o_sm x50_clip_sm_filtered_annot.csv -clip x50_vs_uni_significant.csv -o_cl 
 x50_vs_uni_significant_filt_annot.csv
 ``` 
+In addition to the filtered and annotated output files from the filter/annotate step, counts files will be output for each input DeSeq2 file. These counts files will have 
+the ".annotation_counts.csv" suffix and will be output in the same directory as the other output files. These counts will be of the sub-gene features for each binding region.
+These include- CDS, exon, intron, 5' UTR, 3' UTR, and intergenic. These counts are useful for determining the sub-gene regions the RBP is binding within the transcriptome.
+
 To be able to make the MA plot with all datapoints, the five produced files need to be used. To use the code exactly like in the R script, the gene names will need to be 
 copied and pasted into a new file with no column titles (or use a command like awk). These files are the ones that are imported in the R script. Alternatively, the original 
 files can be imported into R and just the gene names extracted. You will need to write the code to do this, if desired.
