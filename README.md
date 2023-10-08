@@ -75,7 +75,7 @@ Now the reads are ready to be counted. Count all the CLIP and SM sample reads. T
 https://subread.sourceforge.net/. The command I use is below. `-T` should be set to the number of threads desired to be used when running. All 
 HITS-CLIP samples developed for each doseCLIP experiment should be counted together. The `-a` parameter should be the joined GTF file from the previous step. For me, it 
 is easier to run the read count step in two different processes. One process that produces a counts file for only the regular CLIP files and the other with the regular 
-CLIP files and the SM Input controls combined. The counts files will produce two different Deseq2 output file sets. The same GTF file should be used counting both sample sets. 
+CLIP files and the SM Input controls combined. The counts files will produce two different DESeq2 output file sets. The same GTF file should be used counting both sample sets. 
 This should be the GTF that was generated from the previous step.
 ```
 featureCounts -T 1 -p -O \
@@ -84,8 +84,8 @@ featureCounts -T 1 -p -O \
 input_alignment_file1.sorted.bam \
 input_alignment_file2.sorted.bam 
 ```
-## Step 6: Preparing the reads for DeSeq2.
-After counting, the reads will need to be given titles for DeSeq2, formatted, and organized by sample type. I do this using Excel, but it can be done using a script, text 
+## Step 6: Preparing the reads for DESeq2.
+After counting, the reads will need to be given titles for DESeq2, formatted, and organized by sample type. I do this using Excel, but it can be done using a script, text 
 editor, the command line, and/or a combination of the three. Subread outputs a few header lines with the rest of the file in txt format (tab deliminated). The minimum that 
 needs to be done is the header lines removed, the extra columns removed, and titles added to the columns. I also reformat to CSV but text or TSV can be input into R just as 
 easily. Remove the header line(s) that indicates the processing commands, parameters, and samples. Insert a title row above the first line of counts. Remove the columns that 
@@ -98,7 +98,7 @@ samples. The file should look something like this after (if using CSV format):
 gene_id,sample_1,sample_2,sample_3,etc...
 chr10~100283100~100283250~-g,3,4,5,etc...
 ```
-Please note- the names used for samples will need to match the names in the phenotype file required for DeSeq2. The phenotype file is the file used by DeSeq2 to group 
+Please note- the names used for samples will need to match the names in the phenotype file required for DESeq2. The phenotype file is the file used by DESeq2 to group 
 samples together by type. The format I use for the file is as follows:
 ```
 ,condition,type
@@ -110,7 +110,7 @@ etc...
 ```
 The condition is the sample type (in the case of doseCLIP it is protein concentration). Type is not required but can be useful for visualizations. These visualizations can 
 help to understand if there were batch effects in the samples (i.e., sequencing certain samples together). Once the two counts files and the phenotype files 
-prepared for each, the data can be input into DeSeq2 for differential expression analysis.
+prepared for each, the data can be input into DESeq2 for differential expression analysis.
 ## Step 7: RNA-Seq data processing.
 At this point it is advantageous to process the RNA-Seq data. Many of the steps are the same as with the CLIP data, except for the following differences. There of course are 
 no SM controls for the RNA-Seq samples, so do not worry about these. The first step for the RNA-Seq samples (after ensuring they are of sufficient quality- this can be done 
@@ -134,9 +134,9 @@ input_fastq_file_rnaseq_read2.fastq \
 ```
 After performing the splicing analyses, subread can be used to get the gene counts from the BAM files. This can be performed using the same command as the CLIP/SM files, 
 except for the GTF file used should be the one used for RNA-Seq alignment with STAR (should match the target genomic FASTA sequence). All RNA-Seq samples should be processed 
-together. After this, the counts file should be prepared for DeSeq2, just like for the CLIP/SM samples. The RNA-Seq samples should have their own counts file, with only the 
-RNA-Seq samples combined. The DeSeq2 phenotype file will also need to be prepared for the RNA-Seq samples. This file should contain all the RNA-Seq samples and again be 
-separate. After preparing the files for DeSeq2, the splicing analysis can be performed. I use rMATS (turbo) for this. The rMATS manual can be found here- 
+together. After this, the counts file should be prepared for DESeq2, just like for the CLIP/SM samples. The RNA-Seq samples should have their own counts file, with only the 
+RNA-Seq samples combined. The DESeq2 phenotype file will also need to be prepared for the RNA-Seq samples. This file should contain all the RNA-Seq samples and again be 
+separate. After preparing the files for DESeq2, the splicing analysis can be performed. I use rMATS (turbo) for this. The rMATS manual can be found here- 
 https://rnaseq-mats.sourceforge.net/rmats4.0.2/user_guide.htm. The command I use is below. The alternative splicing analysis should be performed comparing the uninduced 
 samples versus each induced protein concentration. Therefore, for five induced sample sets and one uninduced sample set, there should be five rMATS analyses 
 performed. The `--nthread` parameter is how many threads are desired when running.
@@ -153,8 +153,8 @@ would be like below.
 x5_sample_1.sorted.bam,x5_sample_2.sorted.bam,x5_sample_3.sorted.bam
 ```
 The splicing analysis results can be saved for later analyses.
-## Step 8: DeSeq2 analysis.
-The **doseclip_deseq2_example.R** R script contains the needed R commands to be able to process the data. Edit the script for your samples and execute the commands. This 
+## Step 8: DESeq2 analysis.
+The **doseclip DESeq2_example.R** R script contains the needed R commands to be able to process the data. Edit the script for your samples and execute the commands. This 
 should produce a variety of normalized counts files for downsteam analyses. There are also additional commands to produce plots like in the doseCLIP paper (not published yet). 
 The main combined plot needs downstream analyses to be performed before it can be completed. After producing the required normalized counts files, proceed to the next steps.
 ## Step 9: Filtering the normalized counts 
@@ -164,14 +164,14 @@ regular CLIP (in comparison to the uninduced) differential expression files (x50
 can be filtered. The binding regions also need to be annotated with the gene regions and sub-gene regions they are from. This can be done with the 
 **filter_annotate_binding_regions.py** script. This script can be tested using the `pytest test_filter_annotate_binding_regions.py` command. For instructions on how to 
 use the script, type `python3 filter_annotate_binding_regions.py -h`. Essentially, the script will annotate a CLIP and SM normalized counts file or differential 
-expression file, if no regular CLIP file is also input. If the CLIP DeSeq2 produced file is input with a regular CLIP file, then the CLIP and SM file will be annotated, the 
+expression file, if no regular CLIP file is also input. If the CLIP DESeq2 produced file is input with a regular CLIP file, then the CLIP and SM file will be annotated, the 
 regular CLIP file will be annotated, and the regular file will be filtered using the SM filtered events. This will produce a SM filtered regular CLIP differential expression  
 file but with the uninduced vs protein concentration differential expression information. The regular CLIP file normalized counts file will also need to be filtered and 
 annotated. This can be done by concatenating all the different SM filtered protein concentrations (x50_clip_sm_filtered.csv, x36_clip_sm_filtered.csv, etc.) into a single 
 file. Make sure to remove the title lines from the files before concatenating, except for the first title line. The filtered normalized counts are used for multiple later 
 analyses. For a six protein concentration doseCLIP dataset (including uninduced), there should be twelve files produced. One with the regular CLIP normalized counts for all 
 samples (`-o_cl` parameter in line 1 in the code example below). Five additional files that compared each protein concentration to the uninduced sample set for only the 
-regular CLIP files (`-o_cl` paramter in line 2 in the code example below). Lastly, six SM/CLIP SM filtered events should be annotated (these require no DeSeq2 produced 
+regular CLIP files (`-o_cl` paramter in line 2 in the code example below). Lastly, six SM/CLIP SM filtered events should be annotated (these require no DESeq2 produced 
 regular CLIP files to be input when processing- `-o_sm` parameter in line 2 in the code example below). A GTF file is needed to annotate the binding regions and this 
 should be the same GTF that was used for the RNA-Seq samples (should have been downloaded with the target genome FASTA file). Examples of how to execute thee 
 **filter_annotate_binding_regions.py** script is below. There are two examples, for each of the file types just previously described.
@@ -181,7 +181,7 @@ all_clip_normalized_counts.csv -o_cl all_clip_normalized_counts_filt_annot.csv
 python3 filter_annotate_binding_regions.py -sm x50_clip_sm_filtered.csv -gtf target_genomic_gtf_annotation.gtf -o_sm x50_clip_sm_filtered_annot.csv -clip x50_vs_uni_significant.csv -o_cl 
 x50_vs_uni_significant_filt_annot.csv
 ``` 
-In addition to the filtered and annotated output files from the filter/annotate step, counts files will be output for each input DeSeq2 file. These counts files will have 
+In addition to the filtered and annotated output files from the filter/annotate step, counts files will be output for each input DESeq2 file. These counts files will have 
 the ".annotation_counts.csv" suffix and will be output in the same directory as the other output files. These counts will be of the sub-gene features for each binding region.
 These include- CDS, exon, intron, 5' UTR, 3' UTR, and intergenic. These counts are useful for determining the sub-gene regions the RBP is binding within the transcriptome.
 
@@ -195,11 +195,24 @@ duplicates collapsed, reads aligned, and binding regions determined by Piranha. 
 background (standard Piranha output). Although the sample will contain false positives, it is still useful for determining if the doseCLIP libraries were made successfully. 
 The first step is to determine the overlapping regions between the past HITS-CLIP dataset and each filtered doseCLIP sample. This can be performed using the 
 **count_binding_regions.py** script. See the script for execution instructions (`count_binding_regions.py -h`). This script can be tested using the 
-`pytest test_filter_annotate_binding_regions.py` command. The previously annotated SM filtered DeSeq2 produced files (the x50_clip_sm_filtered_annot.csv output file 
+`pytest test_filter_annotate_binding_regions.py` command. The previously annotated SM filtered DESeq2 produced files (the x50_clip_sm_filtered_annot.csv output file 
 from the example above) should be checked for overlapping events. This means that for a doseCLIP sample set with six protein concentrations, including uninduced, the 
-script should have six DeSeq2 produced files input, with one BED file. The script will produce a text file with the counts of overlapping events for each DeSeq2 produced 
+script should have six DESeq2 produced files input, with one BED file. The script will produce a text file with the counts of overlapping events for each DESeq2 produced 
 file. These numbers can be used to make a figure showing the numbers of overlapping regions. Next, the Piranha produced BED file itself (from the past HITS-CLIP sample) can 
 be annotated. This can be performed using the **filter_annotate_binding_regions_bed.py** script. See the script for execution instructions 
 (`python3 filter_annotate_binding_regions_bed.py -h`). Again, this script can be tested using the `pytest test_filter_annotate_binding_regions_bed.py` command. The script 
-needs a GTF file (should be the same one used to annotate the DeSeq2 produced files in the previous step) and will produce an annotated BED file. This file can be used 
+needs a GTF file (should be the same one used to annotate the DESeq2 produced files in the previous step) and will produce an annotated BED file. This file can be used 
 in the next step to determine the genomic distribution of the binding regions.
+## Step 10: Determining enrichment of motifs (non-RNA Bind-N-Seq style).
+The filtered binding regions, both verus the uniduced and SM Filtered can now be analyzed for motif enrichment. Motif enrichment informs us whether the RBP has nucleotide sequences that it 
+has stronger binding interactions with. The first step is to convert the DESeq2 produced binding events to BED format. This way Bedtools (website link is here: https://bedtools.readthedocs.io) 
+can be used to grab the nucleotide sequences of these regions. Motif analysis can be performed on any genuine binding region, and therefore should be performed on the SM filtered binding regions 
+(i.e., x50_clip_sm_filtered_annot.csv), and the additionally filtered verus uninduced binding regions (i.e., x50_vs_uni_significant_filt_annot.csv). The first thing that needs to be done is 
+the DESeq2 events need to be converted to BED format. This can be performed using the **convert DESeq_to_bed.py** script. This script can be tested on your system using Pytest as previosly 
+mentioned. The script takes one or more DESeq2 produced files and outputs all the events in BED format in the file's directory. After this, Bedtools can be used to get the FASTA sequences for 
+each binding region. To do this, the original FASTA sequence that was used for alignment will need to be used. This command is like the following:
+```
+bedtools getfasta -s -fi genomic_target_file.fasta -bed input.bed -fo output.fasta
+```
+After grabbing all the FASTA sequences, these sequences can be analyzed for motifs. This can be performed using the **.py** script (script coming soon).
+
