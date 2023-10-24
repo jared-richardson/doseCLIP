@@ -91,8 +91,8 @@ def add_events_to_dictionary(filtered_file, regular_gtf_file):
             # Parses gene information.
             gene_split = line_split[0].split("~")
             # Saves information needed to compare to GTF.
-            chromosome, cordinate1 = gene_split[0], int(gene_split[1])
-            cordinate2, strand = int(gene_split[2]), gene_split[3]
+            chromosome, cordinate1 = gene_split[0].replace('"',''), int(gene_split[1])
+            cordinate2, strand = int(gene_split[2]), gene_split[3][0]
             # Iterates through each line in the GTF file (TSV) and looks for overlap
             # with binding region. If overlap, saves needed information for output.                      
             with open(regular_gtf_file) as open_regular_gtf_file:
@@ -101,7 +101,7 @@ def add_events_to_dictionary(filtered_file, regular_gtf_file):
                         line_gtf_split = line_gtf.strip("\n").split("\t")
                         # Saves data needed for comparison.
                         chromosome_gtf, cordinate1_gtf = line_gtf_split[0], int(line_gtf_split[3])
-                        cordinate2_gtf, strand_gtf = int(line_gtf_split[4]), line_gtf_split[6] 
+                        cordinate2_gtf, strand_gtf = int(line_gtf_split[4]), line_gtf_split[6]
                         # Checks for identical chromosome, strand, and overlap between the
                         # binding region and the gene/sub-gene feature.
                         if ((chromosome == chromosome_gtf) and (strand == strand_gtf)
