@@ -215,7 +215,7 @@ Tests output_motifs with various FASTA file inputs and motif
     output_region_csv -- CSV files of random motif enrichment values
         for each binding region from all input files. File name-
         output_file_prefix + "_motifs_per_region.csv". Format -
-        Region Name, Random Motif Enrichment Value.
+        Region Name, Random Motif Enrichment Value, Normalized.
     output motif CSV -- CSV file of random motif enrichment values
         per target motif per file. Last section indicates whether
         motif was able to be normalized using the random files.
@@ -270,8 +270,8 @@ Tests output_motifs with various FASTA file inputs and motif
                         ("test_files/random_enrichment_motif/test1_all_motifs.csv"),
                         # results_dictionary
                         ({"test_files/random_enrichment_motif/test1_motifs_per_region.csv": \
-                            ["Region Name, YGCY Motif Per 100 Nucleotides Value",
-                             "name1,25.0"],
+                            ["Region Name, YGCY Random Motif Enrichment Value, Normalized",
+                             "name1,1.0,Yes"],
                           "test_files/random_enrichment_motif/test1_total_motifs.csv": \
                             ["File Name, YGCY Motif, Random Motif Enrichment Value, Normalized",
                              "test1.fasta,CGCC,1.0,Yes",
@@ -340,13 +340,13 @@ Tests output_motifs with various FASTA file inputs and motif
                         ("test_files/random_enrichment_motif/test2_all_motifs.csv"),
                         # results_dictionary
                         ({"test_files/random_enrichment_motif/test2_motifs_per_region.csv": \
-                            ["Region Name, YGCY Motif Per 100 Nucleotides Value",
-                             "name1,25.0",
-                             "name2,25.0",
-                             "name3,25.0",
-                             "name41,25.0",
-                             "name42,50.0",
-                             "name43,50.0"],
+                            ["Region Name, YGCY Random Motif Enrichment Value, Normalized",
+                             "name1,0.25,No",
+                             "name2,0.25,No",
+                             "name3,0.25,No",
+                             "name41,0.25,No",
+                             "name42,0.5,No",
+                             "name43,0.5,No"],
                           "test_files/random_enrichment_motif/test2_total_motifs.csv": \
                             ["File Name, YGCY Motif, Random Motif Enrichment Value, Normalized",
                              "test1.fasta,CGCC,0.75,Yes",

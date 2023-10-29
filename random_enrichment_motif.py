@@ -116,7 +116,7 @@ def output_motifs(file_dictionary, region_dictionary, output_file_prefix,
         Output region CSV -- CSV files of random motif enrichment values
             for each binding region from all input files. File name-
             output_file_prefix + "_motifs_per_region.csv". Format -
-            Region Name, Motif Per 100 Nucleotides Value. 
+            Region Name, Random Motif Enrichment Value, Normalized. 
         Output motif CSV -- CSV file of random motif enrichment values
             per target motif per file. Last section indicates whether
             motif was able to be normalized using the random files.
@@ -141,16 +141,12 @@ def output_motifs(file_dictionary, region_dictionary, output_file_prefix,
     output_all_motifs = (output_file_prefix + "_all_motifs.csv")
     output_all_motifs_out = open(output_all_motifs, 'w')
     # Writes headers for output files.
-    output_region_out.write(f"Region Name, {motif_title} Motif Per 100 Nucleotides Value\n")
+    output_region_out.write(f"Region Name, {motif_title} Random Motif Enrichment Value, Normalized\n")
     output_motif_out.write(f"File Name, {motif_title} Motif, Random Motif Enrichment Value, Normalized\n")
     output_all_motifs_out.write("File Name, Motif, Random Motif Enrichment Value, Normalized\n")
-    # Loops through region_dictionary and outputs region name and
-    # motif count per 100 nucleotides (motif per nucleotides is 
-    # multiplied by 100).
-    for region in region_dictionary:
-        output_region_out.write(region + "," + 
-                                str(region_dictionary[region] * 100) + "\n")
-    random_dictionary = get_average_random(file_dictionary)    
+    random_dictionary = get_average_random(file_dictionary)
+    # List used to store desired motifs from random files.
+    random_list = []   
     # Loops through motif_dictionary and outputs file name, motif, and
     # normalized motif count. Does not use random files.
     for file in file_dictionary:
@@ -170,8 +166,28 @@ def output_motifs(file_dictionary, region_dictionary, output_file_prefix,
                                             + "," + normalized + "\n")
                 # Filters using motif_list to output only motifs of interest.
                 if motif in motif_list:
+                    # Saves motif value from random_dictionary to random_list.
+                    random_list.append(random_dictionary.get(motif))
                     output_motif_out.write(file + "," + motif + "," + str(motif_normalized)
                                             + "," + normalized + "\n")
+    # Loops through region_dictionary and outputs region name and
+    # motif count per 100 nucleotides (motif per nucleotides is 
+    # multiplied by 100).
+    normalized = "No"
+    # Used to save combination of desired motifs from random_list.
+    random_motif = 0.0
+    # Checks make sure random file had all motifs, if so normalized is
+    # true and the sum of the list is used for normalization.
+    if None not in random_list:
+        normalized = "Yes"
+        random_motif = sum(random_list)
+    for region in region_dictionary:
+        if normalized == "Yes":
+            output_region_out.write(region + "," + str(region_dictionary[region] / random_motif) 
+                                    + "," + normalized + "\n")
+        else:
+            output_region_out.write(region + "," + str(region_dictionary[region]) 
+                                    + "," + normalized + "\n")    
 
 def get_average_random(file_dictionary):
     """
@@ -256,7 +272,7 @@ def main():
         Output region CSV -- CSV files of random motif enrichment values
             for each binding region from all input files. File name-
             output_file_prefix + "_motifs_per_region.csv". Format -
-            Region Name, Motif Per 100 Nucleotides Value. 
+            Region Name, Random Motif Enrichment Value, Normalized. 
         Output motif CSV -- CSV file of random motif enrichment values
             per target motif per file. Last section indicates whether
             motif was able to be normalized using the random files.
