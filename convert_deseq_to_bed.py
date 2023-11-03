@@ -34,7 +34,7 @@ def convert_regions(deseq_files):
                 gene_split = line_split[0].split("~")
                 # Need to grab only the strand which is the first character.
                 gene_strand = gene_split[3][0]
-                deseq_file_out.write(gene_split[0] + "\t" + gene_split[1] + "\t" + gene_split[2] +\
+                deseq_file_out.write(gene_split[0].replace('"','') + "\t" + gene_split[1] + "\t" + gene_split[2] +\
                                      "\t" + "X" + "\t" + "100" + "\t" + gene_strand + "\n")
         deseq_file_out.close()
         deseq_file_open.close()        
@@ -52,7 +52,7 @@ def init_argparse():
     # Script description.
     parser = argparse.ArgumentParser(description = "Converts DESeq2 input files into BED format.")        
     # Command line arguments and descriptions.
-    parser.add_argument("-d", "--deseq_file", action = "store", type = str, nargs='+', 
+    parser.add_argument("-d", "--deseq_files", action = "store", type = str, nargs='+', 
                         help="DESeq2 produced files that need to be converted to BED format. Files \
                               will be output to same directory",
                         required = True)                                                                              
