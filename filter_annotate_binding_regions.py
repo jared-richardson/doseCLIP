@@ -69,10 +69,8 @@ def add_events_to_dictionary(filtered_file, regular_gtf_file):
     region_dictionary = {}
     # Saves title line.
     title_line = ""
-    # Sets variables for transcript coordinates. Used to determine what type
-    # of UTR is present, 5' or 3'.
-    transcript_cord1 = 0
-    transcript_cord2 = 0
+    # Saves GTF information to object for faster annotation.
+    gtf_object = make_gtf_object(regular_gtf_file)
     # Iterates through each line in the counts file (CSV) and adds it to the dictionary.
     # Also, looks for gene and sub-gene information from GTF file.                     
     with open(filtered_file) as open_filtered_file:
@@ -88,11 +86,51 @@ def add_events_to_dictionary(filtered_file, regular_gtf_file):
             # to output after iterating through GTF file.
             gene_line = ""
             sub_gene_line = ""
+            gene_list = []
             # Parses gene information.
             gene_split = line_split[0].split("~")
             # Saves information needed to compare to GTF.
             chromosome, cordinate1 = gene_split[0].replace('"',''), int(gene_split[1])
             cordinate2, strand = int(gene_split[2]), gene_split[3][0]
+            chrom_dictionary = gtf_object.get(chromosome)
+            if chrom_dictionary != None:
+                gene_list = chrom_dictionary.get(strand)
+            if gene_list != None:
+                for gene in gene_list:
+                    if (((gene[0] <= cordinate1) and (cordinate1 <= gene[1])) or
+                       ((gene[0] <= cordinate2) and (cordinate2 <= gene[1])) or
+                       ((gene[0] <= cordinate1) and (cordinate2 <= gene[1])) or
+                       ((gene[0] >= cordinate1) and (cordinate2 >= gene[1]))):
+                        gene_id, gene_type, gene_name, event_type = gene[2], gene[3], gene[4], gene[5]
+                        # Checks to see if there has been a gene that has already been
+                        # found that overlaps. This should be a rare occurance. If no
+                        # previous gene, saves new data, if previous then adds additional
+                        # gene information to string for output.
+                        if (event_type == "gene"):
+                            if len(gene_line) == 0:
+                                gene_line = f"{gene_id}~{gene_type}~{gene_name}"
+                            else:
+                                gene_line = f"{gene_line}~{gene_id}~{gene_type}~{gene_name}"   
+                        # Performs same as above for the gene line but for sub-gene features.            
+                        if ((event_type != "transcript") and (event_type != "gene")):
+                        # Classifies UTR type. If first coordinate is closer to first transcript
+                        # coordinate, classifies as a 5' UTR, else classifies as 3' UTR.     
+                            if len(sub_gene_line) == 0:
+                                sub_gene_line = event_type
+                            else:    
+                                sub_gene_line = f"{sub_gene_line}~{event_type}"
+            # Adds all information to region_dictionary for output.
+            region_dictionary[line_split[0]] = f"{line_clean}={gene_line}={sub_gene_line}"
+    print(region_dictionary)         
+    open_filtered_file.close()
+    return region_dictionary, title_line
+
+
+
+
+
+"""
+
             # Iterates through each line in the GTF file (TSV) and looks for overlap
             # with binding region. If overlap, saves needed information for output.                      
             with open(regular_gtf_file) as open_regular_gtf_file:
@@ -113,7 +151,7 @@ def add_events_to_dictionary(filtered_file, regular_gtf_file):
                             event_type = line_gtf_split[2]
                             # If GTF is a gene line, saves needed gene information to string for output. 
                             if (event_type == "gene"):
-                                gene_data = line_gtf_split[8].split(";")
+                                gene_data = line_gtf_sqplit[8].split(";")
                                 gene_id_pre = gene_data[0].split('"')
                                 gene_id = gene_id_pre[1]
                                 gene_type_pre = gene_data[1].split('"')
@@ -153,7 +191,7 @@ def add_events_to_dictionary(filtered_file, regular_gtf_file):
             region_dictionary[line_split[0]] = f"{line_clean}={gene_line}={sub_gene_line}" 
     open_filtered_file.close()
     return region_dictionary, title_line
-
+"""
 def output_file(sm_filtered_file, regular_gtf_file, sm_filtered_file_out, sample_keyword,
                 clip_regular_file = "None", clip_regular_file_out = "None"):
     """Takes DeSeq2 produced files, annotates, filters if SM and regular
@@ -361,6 +399,76 @@ def count_and_output_sub_genes(region_dictionary, sm_filtered_file_out, clip_reg
         output = f"{sub_gene},{sub_gene_count}\n"
         file_out_open.write(output)
     file_out_open.close()
+
+def make_gtf_object(regular_gtf_file):
+    """Takes a GTF file and creates a GTF object from it.
+
+        Arguments:
+        regular_gtf_file -- Gencode/Ensembl/UCSC provided GTF file. Should be the GTF
+            annotation for the target alignment sequence. The file is used to annotate
+            the binding regions.
+            
+        Output:    
+        gtf_object -- GTF object created from the GTF file. Object is organized by
+            chromosome, strand, and then cordinate. The object is used to annotate
+            the binding regions.
+        {chromsome: {strand: [coordinate1, coordinate2, gene_id, gene_type, 
+                              gene_name, event_type]}}
+    """
+    gtf_object = {}
+    # Iterates through each line in the GTF file (TSV) and adds 
+    # each line to the GTF object.                      
+    with open(regular_gtf_file) as open_regular_gtf_file:
+        for line_gtf in open_regular_gtf_file:
+            # Skips title lines.
+            if line_gtf[0] != "#":
+                line_gtf_split = line_gtf.strip("\n").split("\t")
+                # Saves data needed for comparison.
+                chromosome, coordinate1 = line_gtf_split[0], int(line_gtf_split[3])
+                coordinate2, strand = int(line_gtf_split[4]), line_gtf_split[6]
+                # Saves the event feature (type) as a variable.
+                event_type = line_gtf_split[2]
+                # If line is a gene line, saves needed gene information to string for output. 
+                if (event_type == "gene"):
+                    gene_data = line_gtf_split[8].split(";")
+                    gene_id_pre = gene_data[0].split('"')
+                    gene_id = gene_id_pre[1]
+                    gene_type_pre = gene_data[1].split('"')
+                    gene_type = gene_type_pre[1]
+                    gene_name_pre = gene_data[2].split('"')
+                    gene_name = gene_name_pre[1]
+                # Performs same as above for the gene line but for sub-gene features.            
+                if ((event_type != "transcript") and (event_type != "gene")):
+                    # Classifies UTR type. If first coordinate is closer to first transcript
+                    # coordinate, classifies as a 5' UTR, else classifies as 3' UTR.
+                    if (event_type == "UTR"):
+                        utr_cord1 = int(line_gtf_split[3])
+                        utr_cord2 = int(line_gtf_split[4])
+                        cord1_difference = abs(transcript_cord1 - utr_cord1)
+                        cord2_difference = abs(transcript_cord2 - utr_cord2)
+                        if (cord1_difference > cord2_difference):
+                            event_type = "3_UTR"
+                        else:
+                            event_type = "5_UTR"
+                    # If transcript feature, saves coordinates to determine UTR type.        
+                if (event_type == "transcript"):
+                    transcript_cord1 = int(line_gtf_split[3])
+                    transcript_cord2 = int(line_gtf_split[4])             
+                # Adds all information to gtf_object for output. Has to check to see if
+                # keys have been added previously. If so, adds to existing key, if not
+                # creates new key.
+                if chromosome in gtf_object:
+                    if strand in gtf_object[chromosome]:
+                        gtf_object[chromosome][strand].append([coordinate1, coordinate2, gene_id, 
+                                                               gene_type, gene_name, event_type])
+                    else:
+                        gtf_object[chromosome][strand] = [[coordinate1, coordinate2, gene_id, 
+                                                           gene_type, gene_name, event_type]]
+                else:
+                    gtf_object[chromosome] = {strand: [[coordinate1, coordinate2, gene_id,
+                                                        gene_type, gene_name, event_type]]}
+    open_regular_gtf_file.close()
+    return gtf_object            
 
 def init_argparse():
     """Initiates the use of argparse. Returns parsed

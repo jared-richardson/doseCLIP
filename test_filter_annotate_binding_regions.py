@@ -707,3 +707,76 @@ def test_filter_annotate_binding_regions(sm_filtered_file, regular_gtf_file, sm_
     # Checks line counts.
     assert count_match == line_count
     read1_opened.close()
+
+"""
+Tests make_gtf_object() with different BED and GTF files.
+
+Data Types:
+    regular_gtf_file -- Gencode/Ensembl/UCSC provided GTF file. Should be the GTF
+        annotation for the target alignment sequence. The file is used to annotate
+        the binding regions.
+    gtf_object -- GTF object created from the GTF file. Object is organized by
+        chromosome, strand, and then cordinate. The object is used to annotate
+        the binding regions.
+        {chromsome: {strand: [coordinate1, coordinate2, gene_id, gene_type, 
+                              gene_name, event_type]}}   
+    """
+
+@pytest.mark.parametrize("regular_gtf_file, gtf_object", [
+                         # Test 1: One gene with transcript and exon
+                         # annotation.
+                         # regular_gtf_file
+                         (('test_files/filter_annotate_binding_regions/gtf_test1.csv'),
+                          # region_dictionary
+                          {'chr1': {'+': [[1, 3000, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'gene'], 
+                                           [1, 3000, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'transcript'],
+                                           [250, 350, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'exon']]}}),
+                         # Test 2: Two genes with transcript and exon
+                         # annotation.
+                         # regular_gtf_file
+                         (('test_files/filter_annotate_binding_regions/gtf_test2.csv'),
+                          # region_dictionary
+                          ({'chr1': {'+': [[1, 3000, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'gene'], 
+                                            [1, 3000, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'transcript'], 
+                                            [250, 350, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'exon']]}, 
+                            'chr3': {'+':[[1, 5000, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'gene'], 
+                                          [1, 5000, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'transcript'], 
+                                          [300, 500, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'exon']]}})),
+                         # Test 3: Multiple genes with one 5' UTR.
+                         # regular_gtf_file
+                         (('test_files/filter_annotate_binding_regions/gtf_test3.csv'),
+                          # region_dictionary
+                          ({'chr1': {'+': [[1, 3000, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'gene'], 
+                                           [1, 3000, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'transcript'], 
+                                           [250, 350, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'exon']], 
+                                     '-': [[1, 3000, 'ENSMUSG00000089699.2', 'lncRNA', 'Gm1992', 'gene'], 
+                                            [1, 3000, 'ENSMUSG00000089699.2', 'lncRNA', 'Gm1992', 'transcript']]}, 
+                            'chr2': {'+': [[1, 5000, 'ENSMUSG00000102693', 'snRNA', 'gene', 'gene'], 
+                                           [1, 5000, 'ENSMUSG00000102693', 'snRNA', 'gene', 'transcript'], 
+                                           [299, 500, 'ENSMUSG00000102693', 'snRNA', 'gene', '5_UTR']]}})),
+                         # Test 4: Multiple genes with mutliple types of UTRs.
+                         # regular_gtf_file
+                         (('test_files/filter_annotate_binding_regions/gtf_test4.csv'),
+                          # region_dictionary
+                          ({'chr1': {'+': [[1, 350, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'gene'], 
+                                           [1, 200, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'transcript'], 
+                                           [5, 51, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', '5_UTR'],
+                                           [50, 150, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', 'exon'], 
+                                           [150, 190, 'ENSMUSG00000102693.2', 'TEC', '4933401J01Rik', '3_UTR'],
+                                           [250, 1000, 'ENSMUSG00000089699.2', 'lncRNA', 'Gm1992', 'gene']], 
+                                     '-':  [[250, 1000, 'ENSMUSG00000089699.2', 'lncRNA', 'Gm1992', 'transcript']]}, 
+                            'chr2': {'+':  [[1, 5000, 'ENSMUSG00000102693', 'snRNA', 'gene', 'gene'], 
+                                           [1, 5000, 'ENSMUSG00000102693', 'snRNA', 'gene', 'transcript'], 
+                                           [4500, 4600, 'ENSMUSG00000102693', 'snRNA', 'gene', '3_UTR']]}}))
+                         ])
+
+def test_make_gtf_object(regular_gtf_file, gtf_object):
+    """
+        GIVEN a GTF file that needs to be organized into a dictionary (object).
+        WHEN the function iterates through the GTF file, it organizes the
+            GTF file into a dictionary (object).
+        THEN the output dictionary is checked for the gene information. 
+            The title line string from the input file is also checked 
+            for correctness.
+    """
+    assert f_a_b_r.make_gtf_object(regular_gtf_file) == (gtf_object)   
