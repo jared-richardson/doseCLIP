@@ -33,14 +33,12 @@ The next step is read alignment. Previously, I used to trim the reads a second t
 aligners, as the effectiveness of soft clipping varies by aligner. Minimap2 is highly effective at aligning regions that match genomic regions, 
 making it so a second trimming is not necessary. The first trim would not be necessary either, if it not for the need to remove PCR duplicates. 
 PCR duplicates are identified using the UMI sequence that itself is identified as being immediately adjacent to the adapter sequence. I used 
-Subread for aligning and the following are the commands I use. The first command is to build the genome target index and the `-M` parameter is used to specify the amount 
-of memory to use in megabytes. The second command is for read alignment. For this step, both the regular CLIP files and the SM controls should be aligned. The `-T` 
-parameter is the number of threads to use.
+Subread for aligning and the following are the commands I use. The first command is to build the genome target index and the `-M` parameter is used to specify the amount of memory to use in megabytes. The second command is for read alignment. For this step, both the regular CLIP files and the SM controls should be aligned. The `-T` parameter is the number of threads to use. It is important to ensure that the PE orientation (`-S`) parameter is set correctly. For samples that were produced following the eCLIP protocol, it should match below (`-S rf`).
 ```
 subread-buildindex -o index_directory -M ram_in_megabytes genomic_target_file.fasta
 ```
 ```
-subjunc -T threads_to_use -i index_directory \
+subjunc -T threads_to_use -S rf -i index_directory \
 -r input_fastq_file_read1.fastq \
 -R input_fastq_file_read2.fastq \
 -o output_alignment_file.bam
@@ -51,15 +49,11 @@ Before subsequent steps, the reads will need to be sorted. I used samtools to do
 ```
 samtools sort input_alignment_file.bam > output_alignment_file.sorted.bam
 ```
-Next, the alignment files need to be filtered for only the reads containing read 2. Read 2 indicates the sense strand from the eCLIP protocol, so this will be used to call the binding regions. Read 2 can be filtered for using Samtools and the following command:
-```
-samtools view -hb -f 128 output_alignment_file.sorted.bam > output_alignment_file.sorted_r2.bam
-```
 For more information on samtools, please see the samtools manual- http://www.htslib.org/doc/samtools.html.
 After using samtools, bedtools will need to be used to convert the read2 BAM files to BED files. The bedtools manual can be found here- 
 https://bedtools.readthedocs.io/en/latest/. The command I use is below.
 ``` 
-bedtools bamtobed -i output_alignment_file.sorted_r2.bam > output_alignment_file.sorted_r2.bed
+bedtools bamtobed -i output_alignment_file.sorted.bam > output_alignment_file.sorted.bed
 ```
 ## Step 4: Using Piranha to determine read pileup locations and make custom annotation.
 With the bed files, use Piranha to determine the bounderies of aligned reads. This only needs to be performed on the regular CLIP samples with the read 2 BED files. These regions will be used to build a custom GTF file that can be used to count read pileups in these regions. The Piranha manual can be found 
