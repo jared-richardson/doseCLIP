@@ -72,7 +72,7 @@ Now the reads are ready to be counted. Count all the CLIP and SM sample reads. T
 https://subread.sourceforge.net/. The command I use is below. `-T` should be set to the number of threads desired to be used when running. All 
 HITS-CLIP samples developed for each doseCLIP experiment should be counted together. The `-a` parameter should be the joined GTF file from the previous step. For me, it is easier to run the read count step in two different processes. One process that produces a counts file for only the regular CLIP files and the other with the regular CLIP files and the SM Input controls combined. The counts files will produce two different DESeq2 output file sets. The same GTF file should be used counting both sample sets. This should be the GTF that was generated from the previous step. The BAM files containing all the reads, including read 1 should be used (NOTE- the BAM files with only read 2 should not be used here!).
 ```
-featureCounts -T 1 -p -O \
+featureCounts -T 1 -p -O -s 2\
 -a piranha_generated_gtf.gtf \
 -o output_counts_file.txt -t gene \
 input_alignment_file1.sorted.bam \
