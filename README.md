@@ -26,19 +26,18 @@ input_fastq_file_read2.fastq \
 ```
 The next step is to remove the PCR duplicates. I developed a script to do this **collapse_pcr_duplicates.py**. The script also has a Pytest testing script 
 (**test_collapse_pcr_duplicates.py**) and associated testing files. This can be used on your system by typing the `pytest` command in the script's directory (after 
-installing pytest). The options for the **collapse_pcr_duplicates.py** script can be found using the command `python3 collapse_pcr_duplicates.py -h`. The script requires 
-paired-end Illumina sequencing data.
+installing pytest). The options for the **collapse_pcr_duplicates.py** script can be found using the command `python3 collapse_pcr_duplicates.py -h`. The script requires paired-end Illumina sequencing data.
 **Step 2: Read alignment.
 The next step is read alignment. Previously, I used to trim the reads a second time and then align. This used to be a requirement for many 
 aligners, as the effectiveness of soft clipping varies by aligner. Minimap2 is highly effective at aligning regions that match genomic regions, 
 making it so a second trimming is not necessary. The first trim would not be necessary either, if it not for the need to remove PCR duplicates. 
 PCR duplicates are identified using the UMI sequence that itself is identified as being immediately adjacent to the adapter sequence. I used 
-Subread for aligning and the following are the commands I use. The first command is to build the genome target index and the `-M` parameter is used to specify the amount of memory to use in megabytes. The second command is for read alignment. For this step, both the regular CLIP files and the SM controls should be aligned. The `-T` parameter is the number of threads to use. It is important to ensure that the PE orientation (`-S`) parameter is set correctly. For samples that were produced following the eCLIP protocol, it should match below (`-S rf`).
+Subread for aligning and the following are the commands I use. The first command is to build the genome target index and the `-M` parameter is used to specify the amount of memory to use in megabytes. The second command is for read alignment. For this step, both the regular CLIP files and the SM controls should be aligned. The `-T` parameter is the number of threads to use. It is important to ensure that the PE orientation (`-S`) parameter is set correctly. For samples that were produced following the eCLIP protocol, it should match below (`-S fr`).
 ```
 subread-buildindex -o index_directory -M ram_in_megabytes genomic_target_file.fasta
 ```
 ```
-subjunc -T threads_to_use -S rf -i index_directory \
+subjunc -T threads_to_use -S fr -i index_directory \
 -r input_fastq_file_read1.fastq \
 -R input_fastq_file_read2.fastq \
 -o output_alignment_file.bam
@@ -50,17 +49,17 @@ Before subsequent steps, the reads will need to be sorted. I used samtools to do
 samtools sort input_alignment_file.bam > output_alignment_file.sorted.bam
 ```
 For more information on samtools, please see the samtools manual- http://www.htslib.org/doc/samtools.html.
-After using samtools, bedtools will need to be used to convert the read2 BAM files to BED files. The bedtools manual can be found here- 
+After using samtools, bedtools will need to be used to convert the BAM files to BED files. The bedtools manual can be found here- 
 https://bedtools.readthedocs.io/en/latest/. The command I use is below.
 ``` 
 bedtools bamtobed -i output_alignment_file.sorted.bam > output_alignment_file.sorted.bed
 ```
 ## Step 4: Using Piranha to determine read pileup locations and make custom annotation.
-With the bed files, use Piranha to determine the bounderies of aligned reads. This only needs to be performed on the regular CLIP samples with the read 2 BED files. These regions will be used to build a custom GTF file that can be used to count read pileups in these regions. The Piranha manual can be found 
+With the bed files, use Piranha to determine the bounderies of aligned reads. This only needs to be performed on the regular CLIP samples with the BED files. These regions will be used to build a custom GTF file that can be used to count read pileups in these regions. The Piranha manual can be found 
 here- http://smithlabresearch.org/software/piranha/. The command I use for the program is below. The `-z` parameter is for the bin size and should 
 be equal to the raw length of each input read.
 ```
-Piranha -z 75 -u 0 -a 0.98 -s -o output_piranha_alignment_file.sorted_r2.bed output_alignment_file.sorted_r2.bed
+Piranha -z 75 -u 0 -a 0.98 -s -o output_piranha_alignment_file.sorted.bed output_alignment_file.sorted.bed
 ```
 Following using Piranha, a custom Python script is used to join all the regions of read pileups into a single annotation. Use the **join_binding_regions.py** script to do 
 this. The script also has a Pytest testing script (**test_join_binding_regions.py**) and associated testing files. This can be used on your system by typing the `pytest` 
@@ -70,9 +69,9 @@ file. The script should be executed once for each doseCLIP sample set. One GTF f
 ## Step 5: Counting the reads.
 Now the reads are ready to be counted. Count all the CLIP and SM sample reads. To count the reads I use subread. The page for subread can be found here- 
 https://subread.sourceforge.net/. The command I use is below. `-T` should be set to the number of threads desired to be used when running. All 
-HITS-CLIP samples developed for each doseCLIP experiment should be counted together. The `-a` parameter should be the joined GTF file from the previous step. For me, it is easier to run the read count step in two different processes. One process that produces a counts file for only the regular CLIP files and the other with the regular CLIP files and the SM Input controls combined. The counts files will produce two different DESeq2 output file sets. The same GTF file should be used counting both sample sets. This should be the GTF that was generated from the previous step. The BAM files containing all the reads, including read 1 should be used (NOTE- the BAM files with only read 2 should not be used here!).
+HITS-CLIP samples developed for each doseCLIP experiment should be counted together. The `-a` parameter should be the joined GTF file from the previous step. For me, it is easier to run the read count step in two different processes. One process that produces a counts file for only the regular CLIP files and the other with the regular CLIP files and the SM Input controls combined. The counts files will produce two different DESeq2 output file sets. The same GTF file should be used counting both sample sets. This should be the GTF that was generated from the previous step.
 ```
-featureCounts -T 1 -p -O -s 2\
+featureCounts -T 1 -p -O -s 1 \
 -a piranha_generated_gtf.gtf \
 -o output_counts_file.txt -t gene \
 input_alignment_file1.sorted.bam \
