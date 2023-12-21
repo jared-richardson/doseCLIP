@@ -326,6 +326,41 @@ Data Types:
                            ["Sub-Gene Type,Sub-Gene Count", "3_UTR,1", "intron,1", "intergenic,2"],
                            # count_match_clip_count
                            (4)),
+                         # Test 5: One matching event with a normalized counts file, no regular CLIP files.
+                         # in an exon region.
+                         # sm_filtered_file
+                         (("test_files/filter_annotate_binding_regions/sm_test5_normalized_counts.csv"),
+                           # regular_gtf_file
+                           ("test_files/filter_annotate_binding_regions/numa1_gtf.gtf"),
+                           # sm_filtered_file_out
+                           ("test_files/filter_annotate_binding_regions/sm_test5_normalized_counts_out.csv"),
+                           # sample_keyword
+                           "SM",
+                           # clip_regular_file
+                           None,
+                           # clip_regular_file_out
+                           None,
+                           # sm_filtered_file_out_count
+                           ("test_files/filter_annotate_binding_regions/sm_test5_normalized_counts_out.annotation_counts.csv"),
+                           # clip_regular_file_out_count
+                           (""),
+                           # results_list
+                           [",x50_sample_1,x50_sample_2,x50_sample_3,x5_sample_1,x5_sample_2,x5_sample_3,gene_id,gene_type,gene_name,sub_gene_type,all_genes,all_sub_gene_types",
+                            "chr1~100~300~+,100.0,100.3,100.2,50.1,50.2,50.4,ENSMUSG00000102693.2,TEC,4933401J01Rik,exon,,"],
+                           # count_match
+                           (2),
+                           # results_list_count
+                           ["Sub-Gene Type,Sub-Gene Count", "exon,1"],
+                           # count_match_count
+                           (2), 
+                           # results_list_clip
+                           [],
+                           # count_match_clip
+                           (0),
+                           # results_list_clip_count
+                           [],
+                           # count_match_clip_count
+                           (0)),  
                          ])
 
 def test_output_file(sm_filtered_file, regular_gtf_file, sm_filtered_file_out, sample_keyword,
@@ -356,6 +391,7 @@ def test_output_file(sm_filtered_file, regular_gtf_file, sm_filtered_file_out, s
     # Checks each line of the output against the expected output
     # in the results_list. Counts should match.
     for line in read1_opened:
+        print(line)
         # Cleans line to make it is easier to compare.
         line_clean = line.strip("\n")
         if line_clean in results_list:
@@ -371,7 +407,9 @@ def test_output_file(sm_filtered_file, regular_gtf_file, sm_filtered_file_out, s
     read1_opened = open(sm_filtered_file_out_count, 'r')
     # Checks each line of the output against the expected output
     # in the results_list. Counts should match.
+    print("0")
     for line in read1_opened:
+        print(line)
         # Cleans line to make it is easier to compare.
         line_clean = line.strip("\n")
         if line_clean in results_list_count:
