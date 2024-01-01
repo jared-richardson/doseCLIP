@@ -22,7 +22,7 @@ Data Types:
 @pytest.mark.parametrize("region_csv, region_dictionary", [
                          # Test 1: One binding region.
                          # region_csv
-                         (('test_files/match_binding_to_splicing/test1_motifs_per_region.csv'),
+                         (('test_files/match_binding_to_splicing/test12_motifs_per_region.csv'),
                            # region_dictionary
                            ({'name1': ['1.0', 'Yes']})),
                          # Test 2: Multiple binding regions.

@@ -1,0 +1,2 @@
+ID	GeneID	geneSymbol	chr	strand	exonStart_0base	exonEnd	upstreamES	upstreamEE	downstreamES	downstreamEE	ID	IJC_SAMPLE_1	SJC_SAMPLE_1	IJC_SAMPLE_2	SJC_SAMPLE_2	IncFormLen	SkipFormLen	PValue	FDR	IncLevel1	IncLevel2	IncLevelDifference
+3	"ENSMUSG00000024909.16"	"Efemp2"	chr19	+	5525179	5525206	5524774	5524802	5525435	5525484	3	11,11,9	0,0,0	15,15,12	0,1,0	102	75	1	0.05	 1.0,1.0,1.0	1.0,0.917,1.0	0.11

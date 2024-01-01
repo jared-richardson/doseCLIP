@@ -1,0 +1,2 @@
+Region,A_per_CGCC,A_per_CGCT,A_per_TGCC,A_per_TGCT,C_per_CGCC,C_per_CGCT,C_per_TGCC,C_per_TGCT,G_per_CGCC,G_per_CGCT,G_per_TGCC,G_per_TGCT,T_per_CGCC,T_per_CGCT,T_per_TGCC,T_per_TGCT,CGCC_per_group,CGCT_per_group,TGCC_per_group,TGCT_per_group,CGCC_per_region,CGCT_per_region,TGCC_per_region,TGCT_per_region,Motif_per_group,Nucleotide_per_group,Total_motifs_per_region_length,Total_nucleotides_per_region_length
+name1,2.0,0,0,4.0,0.0,0,0,0.0,0.0,0,0,0.0,7.0,0,0,14.0,1.0,0.0,0.0,0.5,0.6666666666666666,0.0,0.0,0.3333333333333333,1.5,9.0,12.5,75.0

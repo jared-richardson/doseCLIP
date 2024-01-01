@@ -1,0 +1,2 @@
+File_Name,All_A_%,All_C_%,All_G_%,All_T_%,All_average_length,Intra_A_%,Intra_C_%,Intra_G_%,Intra_T_%,Intra_average_length,Inter_A_%,Inter_C_%,Inter_G_%,Inter_T_%,Inter_average_length,A_rate_per_motif_per_group,C_rate_per_motif_per_group,G_rate_per_motif_per_group,T_rate_per_motif_per_group,A_per_group,C_per_group,G_per_group,T_per_group
+name1,20.1,20.2,40.3,20.4,10.1,20.0,30.0,40.0,50.0,10.2,20.01,20.02,40.03,20.04,10.3,0.05,0.0251,0.025,0.15,2.0,1.01,1.02,6.0,

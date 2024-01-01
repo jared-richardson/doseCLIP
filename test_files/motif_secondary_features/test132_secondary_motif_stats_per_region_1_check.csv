@@ -1,0 +1,3 @@
+Region,All_A_%,All_C_%,All_G_%,All_T_%,All_average_length,Intra_A_%,Intra_C_%,Intra_G_%,Intra_T_%,Intra_average_length,Inter_A_%,Inter_C_%,Inter_G_%,Inter_T_%,Inter_average_length,A_rate_per_motif_per_group,C_rate_per_motif_per_group,G_rate_per_motif_per_group,T_rate_per_motif_per_group,A_per_group,C_per_group,G_per_group,T_per_group
+name1,22.22222222222222,0.0,0.0,77.77777777777779,18.0,100.0,0.0,0.0,0.0,4.0,0.0,0.0,0.0,100.0,8.0,0.14814814814814814,0.0,0.0,0.5185185185185185,2.0,0.0,0.0,7.0,
+name2,21.052631578947366,5.263157894736842,0.0,73.68421052631578,19.0,100.0,0.0,0.0,0.0,4.0,0.0,0.0,0.0,100.0,8.0,0.14035087719298245,0.03508771929824561,0.0,0.49122807017543857,2.0,0.5,0.0,7.0,
