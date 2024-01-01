@@ -216,7 +216,7 @@ Data Types:
     title_dictionary -- Dictionary of the title lines for each file.
         Used to output the title lines to the output files.
         {"file": title_line}.
-    prefix -- Prefix to add to the output file name.
+    output -- Output to add to the output file name.
     region_output_check_list -- List of CSV files of expected 
         nucleotide and motif secondary statistics.
     count_match_list -- List of number of lines that match 
@@ -224,7 +224,7 @@ Data Types:
 """
 
 @pytest.mark.parametrize("average_counts, lower_regions, all_regions, \
-                         title_dictionary, prefix, region_output_check_list, \
+                         title_dictionary, output, region_output_check_list, \
                          count_match_list", [
                          # Test 1: One sample line.
                          # average_counts
@@ -235,14 +235,14 @@ Data Types:
                           ({'name1.csv': {'region_1': 'region_1,line1'}}),
                           # title_dictionary
                           ({'name1.csv': ',title_line'}),
-                          # prefix
+                          # output
                           ('test_files/remove_lower_regions'),
                           # region_output_check_list
                           (['test_files/remove_lower_regions/name1_no_lower_check.csv',
                             'test_files/remove_lower_regions/name1_counts_check.csv']),
                           # count_match_list
                           ([2, 2])),
-                          # Test 2: Multiple samples and lines. Also tests prefix formatting.
+                          # Test 2: Multiple samples and lines. Also tests output formatting.
                          # average_counts
                          ({'name12.csv': {'region_1': 2.0,
                                           'region_2': 6.0,
@@ -276,7 +276,7 @@ Data Types:
                           ({'name12.csv': ',title_line',
                              'name22.csv': ',title_line',
                              'name32.csv': ',title_line'}),
-                          # prefix
+                          # output
                           ('test_files/remove_lower_regions/'),
                           # region_output_check_list
                           (['test_files/remove_lower_regions/name12_no_lower_check.csv',
@@ -289,18 +289,18 @@ Data Types:
                           ([4, 4, 4, 4, 3, 3])), 
                          ])
 
-def test_output_file(average_counts, lower_regions, all_regions, title_dictionary, prefix,
+def test_output_file(average_counts, lower_regions, all_regions, title_dictionary, output,
                       region_output_check_list, count_match_list):
     """
     GIVEN a dictionary of the average normalized counts for each sample,
         a dictionary of binding regions from the lower concentration files,
         a dictionary of all binding regions, a dictionary of title lines,
-        and a prefix will be used to output the count information.
+        and a output will be used to output the count information.
     WHEN the function organizes and outputs the information to the two
         output files.
     THEN the output files are checked for the correct information.
     """
-    r_b_r.output_file(average_counts, lower_regions, all_regions, title_dictionary, prefix)
+    r_b_r.output_file(average_counts, lower_regions, all_regions, title_dictionary, output)
     # Counts used to check output.
     line_count = 0
     # Dictionary used to save files needed to be checked.
@@ -310,12 +310,12 @@ def test_output_file(average_counts, lower_regions, all_regions, title_dictionar
         # Saves the filename without the directory structure.
         file_name = file.split("/")[-1].replace(".csv", "")
         # Opens the right output files so content can be checked.
-        if prefix[-1] == "/":
-            deseq_file_name = (prefix + file_name + "_no_lower.csv")
-            normalized_counts_name = (prefix + file_name + "_counts.csv")
+        if output[-1] == "/":
+            deseq_file_name = (output + file_name + "_no_lower.csv")
+            normalized_counts_name = (output + file_name + "_counts.csv")
         else:
-            deseq_file_name = (prefix + "/" + file_name + "_no_lower.csv")
-            normalized_counts_name = (prefix + "/" + file_name + "_counts.csv")
+            deseq_file_name = (output + "/" + file_name + "_no_lower.csv")
+            normalized_counts_name = (output + "/" + file_name + "_counts.csv")
         # Saves files by file name.
         file_dictionary[file_name] = [deseq_file_name, normalized_counts_name]  
     # Count used to open correct check file.
@@ -360,14 +360,14 @@ Data Types:
         structure. This is used to match the files to the samples in the normalized
         counts file. The file is in CSV format. No title required.
         Format- filename,deseq_sample_name,..
-    prefix -- Prefix to add to the output file name.
+    output -- Output to add to the output file name.
     region_output_check_list -- List of CSV files of expected 
         nucleotide and motif secondary statistics.
     count_match_list -- List of number of lines that match 
         between the output and the first check file.
 """
 
-@pytest.mark.parametrize("deseq_file_list, normalized_counts, sample_csv_file, prefix, \
+@pytest.mark.parametrize("deseq_file_list, normalized_counts, sample_csv_file, output, \
                           region_output_check_list, count_match_list", [
                             # Test 1: One sample line.
                             # deseq_file_list
@@ -378,7 +378,7 @@ Data Types:
                          ('test_files/remove_lower_regions/test31_normalized_counts.csv'),
                          # sample_csv_file
                          ('test_files/remove_lower_regions/test31_sample_csv_file.csv'),
-                         # prefix
+                         # output
                          ('test_files/remove_lower_regions/'),
                          # region_output_check_list
                          (['test_files/remove_lower_regions/test3_deseq_file_no_lower_check.csv',
@@ -389,7 +389,7 @@ Data Types:
                             'test_files/remove_lower_regions/test33_deseq_file_counts_check.csv']),
                          # count_match_list
                          ([2, 2, 1, 2, 1, 2])),
-                         # Test 2: Multiple samples and lines. Also tests prefix formatting.
+                         # Test 2: Multiple samples and lines. Also tests output formatting.
                          # deseq_file_list
                          ((['test_files/remove_lower_regions/test4_deseq_file.csv',
                             'test_files/remove_lower_regions/test42_deseq_file.csv',
@@ -398,7 +398,7 @@ Data Types:
                          ('test_files/remove_lower_regions/test4_normalized_counts.csv'),
                          # sample_csv_file
                          ('test_files/remove_lower_regions/test4_sample_csv_file.csv'),
-                         # prefix
+                         # output
                          ('test_files/remove_lower_regions/'),
                          # region_output_check_list
                          (['test_files/remove_lower_regions/test4_deseq_file_no_lower_check.csv',
@@ -411,16 +411,16 @@ Data Types:
                          ([3, 3, 2, 4, 3, 6])),
                         ])
 
-def test_process_regions(deseq_file_list, normalized_counts, sample_csv_file, prefix,
+def test_process_regions(deseq_file_list, normalized_counts, sample_csv_file, output,
                          region_output_check_list, count_match_list):
      """
      GIVEN a list of DESeq2 files, a normalized counts file, a sample CSV file,
-          and a prefix will be used to output the count information.
+          and a output will be used to output the count information.
      WHEN the function organizes and outputs the information to the two
           output files.
      THEN the output files are checked for the correct information.
      """
-     r_b_r.process_regions(deseq_file_list, normalized_counts, sample_csv_file, prefix)
+     r_b_r.process_regions(deseq_file_list, normalized_counts, sample_csv_file, output)
      # Counts used to check output.
      line_count = 0
      # Dictionary used to save files needed to be checked.
@@ -430,12 +430,12 @@ def test_process_regions(deseq_file_list, normalized_counts, sample_csv_file, pr
         # Saves the filename without the directory structure.
         file_name = file.split("/")[-1].replace(".csv", "")
         # Opens the right output files so content can be checked.
-        if prefix[-1] == "/":
-            deseq_file_name = (prefix + file_name + "_no_lower.csv")
-            normalized_counts_name = (prefix + file_name + "_counts.csv")
+        if output[-1] == "/":
+            deseq_file_name = (output + file_name + "_no_lower.csv")
+            normalized_counts_name = (output + file_name + "_counts.csv")
         else:
-            deseq_file_name = (prefix + "/" + file_name + "_no_lower.csv")
-            normalized_counts_name = (prefix + "/" + file_name + "_counts.csv")
+            deseq_file_name = (output + "/" + file_name + "_no_lower.csv")
+            normalized_counts_name = (output + "/" + file_name + "_counts.csv")
         # Saves files by file name.
         file_dictionary[file_name] = [deseq_file_name, normalized_counts_name]
      # Count used to open correct check file.

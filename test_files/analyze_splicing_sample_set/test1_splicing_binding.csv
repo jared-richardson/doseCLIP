@@ -1,0 +1,2 @@
+Region_Name,Gene,Chromosome,Exon-Start,Exon-End,Strand,Ensemble-ID,Delta_PSI,Regulation_Type,Binding_Region_Start,Binding_Region_End,Normalized_Motif_Enrichment,Region Size,Region_Position-(+up)-(-down)-(0in),Base-Mean,Canonical_Splicing_Regulation,Normalized_Count
+chr1~350~450~+g,Efemp2,chr1,399,451,+,ENSMUSG00000024909.16,0.11,Exclusion,100,300,1.0,200,99,1701.81096642425,Canonical,10.0

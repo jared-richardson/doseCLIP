@@ -1,6 +1,6 @@
 import argparse
 
-def process_regions(deseq_file_list, normalized_counts, sample_csv_file, prefix = ""):
+def process_regions(deseq_file_list, normalized_counts, sample_csv_file, output):
     """Takes input DeSeq2 produced files (normalized counts or differential
         expression) and executes the data through other functions to output
         the normalized counts file with the lower concentration binding regions
@@ -20,7 +20,7 @@ def process_regions(deseq_file_list, normalized_counts, sample_csv_file, prefix 
             structure. This is used to match the files to the samples in the normalized
             counts file. The file is in CSV format. No title required.
             Format- filename,deseq_sample_name,..
-        prefix -- Prefix to add to the output file name. Should contain the
+        output -- Directory output for output file.
                
         Output:    
         Uses output_file function to output the normalized counts file with the
@@ -35,7 +35,7 @@ def process_regions(deseq_file_list, normalized_counts, sample_csv_file, prefix 
     lower_region, all_regions, title_dictionary  = remove_lower_regions(deseq_file_list)
     # Outputs the region files with the average_counts for each region
     # added to the end of each line.
-    output_file(average_counts, lower_region, all_regions, title_dictionary, prefix)
+    output_file(average_counts, lower_region, all_regions, title_dictionary, output)
    
 
 def get_sample_names(sample_csv_file):
@@ -127,7 +127,8 @@ def get_average_counts(normalized_counts, sample_names):
                     count_sum = 0
                     for count in normalized_counts_list:
                         count_sum = (count_sum + float(count))
-                    average = (count_sum / length)
+                    # Calculates average. If length is 0, average is 0.       
+                    average = (count_sum / length) if length > 0 else 0
                     # Grabs dictionary for the file and adds the binding region
                     # and average normalized counts.
                     region_normalized_counts = average_counts.get(file_name)    
@@ -240,7 +241,7 @@ def remove_lower_regions(deseq_file_list):
     return lower_region, all_regions, title_dictionary             
 
 def output_file(average_counts, lower_region, all_regions, 
-                title_dictionary, prefix):
+                title_dictionary, output):
     """Takes dictionaries with the average normalized counts,
         one with the lower regions filtered out, and one with
         all regions and outputs the data into two files.
@@ -257,7 +258,7 @@ def output_file(average_counts, lower_region, all_regions,
         title_dictionary -- Dictionary of the title lines for each file.
             Used to output the title lines to the output files.
             {"file": title_line}.
-        prefix -- Prefix to add to the output file name.    
+        output -- Directory output for output file.    
 
         Output:
         deseq_file_out -- Same format as deseq_file, but with one extra column named
@@ -279,12 +280,12 @@ def output_file(average_counts, lower_region, all_regions,
         file_name_out = file_name.replace(".csv", "")
         # Opens output files and writes the title line. Only used for filename
         # output. The title line is not used in the output files.
-        if prefix[-1] == "/":
-            deseq_file_out = open(prefix + file_name_out + "_no_lower.csv", "w")
-            normalized_counts_out = open(prefix + file_name_out + "_counts.csv", "w")
+        if output[-1] == "/":
+            deseq_file_out = open(output + file_name_out + "_no_lower.csv", "w")
+            normalized_counts_out = open(output + file_name_out + "_counts.csv", "w")
         else:
-            deseq_file_out = open(prefix + "/" + file_name_out + "_no_lower.csv", "w")
-            normalized_counts_out = open(prefix + "/" + file_name_out + "_counts.csv", "w")       
+            deseq_file_out = open(output + "/" + file_name_out + "_no_lower.csv", "w")
+            normalized_counts_out = open(output + "/" + file_name_out + "_counts.csv", "w")       
         deseq_file_out.write(title_dictionary.get(file_name) + ",normalized_counts\n")
         normalized_counts_out.write(title_dictionary.get(file_name) + ",normalized_counts\n")    
         # Iterates through each binding region in the file.
@@ -333,11 +334,8 @@ def init_argparse():
                                 the samples in the normalized counts file. The file is in CSV \
                                 format. No title required. \
                                 Format- filename,deseq_sample_name,...", required = True)
-    parser.add_argument("-p", "--prefix", action = "store", type = str, default = "",
-                        help = "Prefix to add to the output file name. Should contain the \
-                                directory structure if wanted to output outside of run \
-                                directory. Does not need to contain anything to add to \
-                                filename, should just be output directory. Default is no prefix.", 
+    parser.add_argument("-o", "--output", action = "store", type = str, default = "",
+                        help = "Directory output to add to the output file name.", 
                                 required = False)                                                                          
     return parser
 
@@ -358,10 +356,7 @@ def main():
             structure. This is used to match the files to the samples in the normalized
             counts file. The file is in CSV format. No title required.
             Format- filename,deseq_sample_name,..
-        prefix -- Prefix to add to the output file name. Should contain the
-            directory structure if wanted to output outside of run directory. Does not
-            need to contain anything to add to filename, should just be output directory.
-            Default is no prefix.    
+        output -- Directory output for output file.   
             
         Output:    
         deseq_file_out -- Same format as deseq_file, but with one extra column named
@@ -381,7 +376,7 @@ def main():
     parsed = args_to_parse.parse_args()
     # Iterates through and executes main functions.
     process_regions(parsed.deseq_file_list, parsed.normalized_counts,
-                    parsed.sample_csv_file, parsed.prefix)
+                    parsed.sample_csv_file, parsed.output)
 
 # Executes main function.
 if __name__ == "__main__":
