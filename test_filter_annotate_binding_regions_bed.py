@@ -316,4 +316,4 @@ def test_count_and_output_sub_genes(region_dictionary, bed_file_out, results_lis
             line_count += 1
     # Checks line counts.
     assert count_match == line_count
-    read1_opened.close()  
+    read1_opened.close()

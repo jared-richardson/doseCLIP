@@ -1,0 +1,22 @@
+File Name, Motif, Random Motif Enrichment Value, Normalized
+test1.fasta,CCGC,0.375,Yes
+test1.fasta,CGCC,0.75,Yes
+test1.fasta,CGCT,0.75,Yes
+test1.fasta,GCCG,0.75,Yes
+test1.fasta,TCGC,0.75,Yes
+test2.fasta,TCGC,0.6000000000000001,Yes
+test2.fasta,CGCC,0.6000000000000001,Yes
+test2.fasta,GCCG,0.30000000000000004,Yes
+test2.fasta,CCGC,0.15000000000000002,Yes
+test2.fasta,CGCT,0.6000000000000001,Yes
+test2.fasta,GCTG,0.05,No
+test2.fasta,CTGC,0.05,No
+test2.fasta,TGCT,0.05,No
+test4.fasta,TCGC,0.6000000000000001,Yes
+test4.fasta,CGCC,0.6000000000000001,Yes
+test4.fasta,GCCG,0.30000000000000004,Yes
+test4.fasta,CCGC,0.15000000000000002,Yes
+test4.fasta,CGCT,0.6000000000000001,Yes
+test4.fasta,GCTG,0.05,No
+test4.fasta,CTGC,0.05,No
+test4.fasta,TGCT,0.0,No

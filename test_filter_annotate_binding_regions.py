@@ -473,7 +473,7 @@ Data Types:
         File Format: Sub-Gene Type, Sub-Gene Count
     results_list -- List of results expected in function produced files.
     count_match -- Expected count of matching lines in output and premade
-        testing files                 
+        testing files.                 
     """
 
 @pytest.mark.parametrize("region_dictionary, sm_filtered_file_out, clip_regular_file_out, \

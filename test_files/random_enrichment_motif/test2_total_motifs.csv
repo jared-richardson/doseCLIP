@@ -1,0 +1,9 @@
+File Name, YGCY Motif, Random Motif Enrichment Value, Normalized
+test1.fasta,CGCC,0.75,Yes
+test1.fasta,CGCT,0.75,Yes
+test2.fasta,CGCC,0.6000000000000001,Yes
+test2.fasta,CGCT,0.6000000000000001,Yes
+test2.fasta,TGCT,0.05,No
+test4.fasta,CGCC,0.6000000000000001,Yes
+test4.fasta,CGCT,0.6000000000000001,Yes
+test4.fasta,TGCT,0.0,No
