@@ -125,7 +125,6 @@ def test_find_output_multiple_binding(splicing_binding, output, results_check, \
     line_count = 0
     # Opens output file for checking output.
     out1_opened = open(output + "_multiple_binding_splicing.csv", "r")
-    print(out1_opened)
     # Checks each line of the output against the expected output
     # in the results_list. Counts should match.
     for line in out1_opened:

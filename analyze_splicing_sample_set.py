@@ -146,7 +146,7 @@ def init_argparse():
     # Command line arguments and descriptions.
     parser.add_argument("-s", "--filtered_splicing", action = "store", type = str, nargs='+',
                         help="rMATS style output file that is \
-                              filtered by delta PSI and an FDR of 10% or less. \
+                              filtered by delta PSI and an FDR of 10 percent or less. \
                               Contains the 'filtered_SE.MATS.JCEC.txt' suffix.",                          
                         required = True)
     parser.add_argument("-b", "--splicing_binding", action = "store", type = str, nargs='+',
