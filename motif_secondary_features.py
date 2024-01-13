@@ -1001,9 +1001,7 @@ def init_argparse():
     parser = argparse.ArgumentParser(description = "Gets secondary motif statistics for input FASTA files.")        
     # Command line arguments and descriptions.
     parser.add_argument("-fl", "--fasta", action = "store", type = str, nargs='+', 
-                        help="List of FASTA files of RBP binding regions. Random files used \
-                              for normalization should be included and contain random in the \
-                              name.", 
+                        help="List of FASTA files of RBP binding regions.", 
                         required = True)
     parser.add_argument("-k", "--kmer", action = "store", type = int, 
                         help="Size of kmers to be analyzed.",
@@ -1026,8 +1024,7 @@ def main():
 
         Arguments:
         region_fasta_list -- (-fl) List of FASTA files of RBP binding 
-            regions. Random files used for normalization should be 
-            included and contain "random" in the name.
+            regions.
         kmer_size -- (-k) Size of kmer to be analyzed.
         output_file_prefix -- (-o) Prefix for output files.
         motif_list -- (-m) List of motifs to be analyzed. Default is YGCY.

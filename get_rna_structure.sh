@@ -7,7 +7,6 @@
 # Input command line arguments.
 ###
 # $1 -- Input directory to process all files in.
-# $2 -- Taxonomic ID to BLAST against.
 ###
 # Checks for "/" at end of file input. If not, adds
 # "/" to end of file input.
@@ -17,15 +16,21 @@ then
 fi
 files=$1/*
 # Loops through all files in input directory, runs BLAST,
-# and outputs to file.
+# and outputs to file. 
 for file in $files
 do
-    # Removes ".fasta" from file name.
-    file=${file%.fasta}
-    output=$file"_blast.tsv"
+    # First checks if file is a ".fasta" or ".fa" file.
+    if [[ $file != *.fasta ]] && [[ $file != *.fa ]]
+    then
+        continue
+    fi
+    # Removes ".fasta" or ".fa" from file name.
+    file_out=${file%.fa} 
+    file_out=${file%.fasta} 
+    output=$file"_structure_fasta"
     echo "Processing $file file..."
-    # BLAST command.
-    blastn -db nt -taxids $2 -query $file -outfmt 6 -out $output
-    # Prints entire BLAST command
-    echo "blastn -db nt -taxids $2 -query $file -outfmt 6 -out $output"
+    # ViennaRNA command.
+    RNAfold $file > $output
+    # Prints entire ViennaRNA command.
+    echo "RNAfold $file > $output"
 done
