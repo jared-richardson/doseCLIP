@@ -20,7 +20,13 @@ files=$1/*
 # and outputs to file.
 for file in $files
 do
-    # Removes ".fasta" from file name.
+    # First checks if file is a ".fasta" or ".fa" file.
+    if [[ $file != *.fasta ]] && [[ $file != *.fa ]]
+    then
+        continue
+    fi  
+    # Removes ".fasta" or ".fa" from file name.
+    file=${file%.fa}
     file=${file%.fasta}
     output=$file"_blast.tsv"
     echo "Processing $file file..."
