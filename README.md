@@ -1,4 +1,4 @@
-# doseCLIP
+# doseCLIP Data Processing
 This page contains the custom scripts required to process doseCLIP data. DoseCLIP is performed using the eCLIP protocol and uses their adapters/primers.  I will also 
 include the commands for the use of open-source programs in the pipeline and the order of each step.
 ## Step 1: Adapter trimming and PCR duplicate removal.
