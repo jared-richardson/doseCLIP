@@ -1,6 +1,6 @@
 # doseCLIP Data Processing
 This page contains the custom scripts required to process doseCLIP data. DoseCLIP is performed using the eCLIP protocol and uses their adapters/primers.  I will also 
-include the commands for the use of open-source programs in the pipeline and the order of each step.
+include the commands for the use of open-source programs in the pipeline and the order of each step. Note- Python 3.6 or greater should be used to execute Python scripts.
 ## Step 1: Adapter trimming and PCR duplicate removal.
 The first step is use Cutadapt to trim the reads. Please see the Cutadapt guide (https://cutadapt.readthedocs.io/en/stable/guide.html) for 
 more information. The command I use for the first trim is as follows. The parameter `-j` should be set to the number of cores desired to be used when executing.
@@ -272,3 +272,13 @@ The output ("_structure_fasta") contains the FASTA information with an additiona
 ```
 python motif_secondary_features_structure.py -fl x50_vs_uni_significant_filt_annot_structure_fasta -k 4 -o output_directory
 ```
+## Step 14: RNA Bind-N-Seq Style Motif Enrichment Analysis
+The data can also be analyzed in the enrichment style of RNA Bind-N-Seq (RBNS), from the 2014 (Lambert et al., _Mol Cell_) paper. This type of analysis has never been performed on seuuencing libraries that were not _in vitro_, so it likely enrichment values are directly comparable, but are still informative to relate in some aspects. The RBNS enrichment values can be calculated using the **rbns_motif_enrichment.py** script. The script can be tested and help given as mentioned previously. The script needs the trimmed adn UMI removed FASTQ file (the final FASTQ files from Step 1) for each sample and its SM Input control. The script also needs an output directory location, a sample prefix, and kmer size (this should be seven for MBNL, as this is the kmer size used in the RBNS paper). The sample sets and their respective SM Inputs should be input all together and in order (i.e., sample1, sample2, sample3 - sm_sample1, sm_sample2, sm_sample3). The script will need to be executed once per sample set (so if six different concentrations, including uninduced, it should be executed six times). Uninduced samples should be analyzed as well. The script can be executed like the example below.
+```
+python rbns_motif_enrichment.py -f sample1.fastq sample12.fastq sample13.fastq -fs sm_sample1.fastq sm_sample12.fastq sm_sample13.fastq -k 7 -o output_directory -p uninduced_samples
+```
+After running the script on all samples, **join_rbns_files.py** can be executed with all the output files so join all the data into a single file for easy data retrieval. The script can be tested and help given as mentioned previously. All sample concentration RBNS motif files should be input together. The script can be executed like the example below.
+ ```
+python join_rbns_files.py -r uninduced_rbns_motif_enrichment.csv x5_rbns_motif_enrichment.csv x10_rbns_motif_enrichment.csv x20_rbns_motif_enrichment.csv x36_rbns_motif_enrichment.csv x50_rbns_motif_enrichment.csv -o output_directory
+```
+This is currently all the steps needed to recreate the analyzes performed in the original doseCLIP paper (not published yet). Further code will be added so that the pipeline is a single execution, with only a configuration file needed to be filled to complete. This will be a separate repository. In additon, motif analysis steps using machine learning will also be added. Currently, I am unsure if I will add the steps here or just point to the open-source software used for the analyses.

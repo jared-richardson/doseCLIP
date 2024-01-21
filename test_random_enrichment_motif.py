@@ -430,4 +430,7 @@ def test_output_motifs(file_dictionary, region_dictionary, output_file_prefix, m
     # Checks to make sure all counts are in count_match.
     for count in count_list:
         position_count = count_list.index(count)
-        assert count == count_match[position_count]        
+        assert count == count_match[position_count]
+    output_region_csv_open.close()
+    output_motif_csv_open.close()
+    output_all_motifs_csv_open.close()            
