@@ -99,7 +99,7 @@ def match_binding_to_splicing(binding_regions, splicing_dictionary, distance,
     # Loops through binding regions file and matches splicing events.
     for line in binding_regions_open:
         line_split = line.split(",")
-        # Grabs normnalized counts from the last column for each region.
+        # Grabs normalized counts from the last column for each region.
         normalized_count = line_split[-1].strip("\n")
         # Skips header line for DESeq2 output file.
         if (len(line_split[0]) != 0 or (line[0].find("~") != -1)):
