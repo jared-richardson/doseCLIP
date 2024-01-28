@@ -329,9 +329,10 @@ def nucleotide_content(nucleotide_list):
             in nucleotide_list. Dictionary is organized by nucleotide. Contains
             nucleotide count total, nucleotide percentage, and average nucleotide
             length.
-            nucleotide_count = {"A": 2, "C": 2, "G": 4, "T": 2,
+            nucleotide_count = {"A": 0, "C": 0, "G": 0, "T": 0, "N": 0,
                                 "A_percentage": 0.0, "C_percentage": 0.0, 
-                                "G_percentage": 0.0, "T_percentage": 0.0,  
+                                "G_percentage": 0.0, "T_percentage": 0.0,
+                                "N_percentage": 0.0,  
                                 "Total": 0, "Average_length": 0.0}.
     """
     # Used to store nucleotide counts.
@@ -339,7 +340,7 @@ def nucleotide_content(nucleotide_list):
     # Used to grab length of each nucleotide string.
     nucleotide_length = []
     # Initializes counts for each nucleotide.
-    for nucleotide in ["A", "C", "G", "T", "Total"]:
+    for nucleotide in ["A", "C", "G", "T", "N", "Total"]:
         nucleotide_count[nucleotide] = 0
     # Iterates through each nucleotide set in nucleotide_list and adds 
     # counts to nucleotide_count.
@@ -349,7 +350,7 @@ def nucleotide_content(nucleotide_list):
             nucleotide_count["Total"] += 1
             nucleotide_count[nucleotide] += 1
     # Calculates percentage for each nucleotide.
-    for nucleotide in ["A", "C", "G", "T"]:
+    for nucleotide in ["A", "C", "G", "T", "N"]:
         nucleotide_count[nucleotide + "_percentage"] = (100 * (nucleotide_count[nucleotide] 
                                                         / nucleotide_count["Total"])) \
         if nucleotide_count["Total"] != 0 else 0     
