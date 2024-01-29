@@ -103,7 +103,7 @@ def match_binding_to_splicing(binding_regions, splicing_dictionary, distance,
         normalized_count = line_split[-1].strip("\n")
         # Skips header line for DESeq2 output file.
         if (line[0].find("~") != -1):
-            region_pre = line_split[0].split("~")
+            region_pre = line_split[0].replace('"','').split("~")
             region_size = int(region_pre[2]) - int(region_pre[1])
             # region_key = [chromosome, region-start, region-end, strand, region-size, base-mean]
             region_list = [region_pre[0], region_pre[1], region_pre[2], region_pre[3][0], region_size, line_split[1]]
