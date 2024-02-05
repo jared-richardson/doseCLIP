@@ -29,7 +29,7 @@ def count_binding_regions(deseq2_files, region_bed_file, counts_file_csv):
             for line in open_deseq2_file:
                 line_sep = line.strip("\n").split(",")
                 if line.find("~") != 0:
-                    chrom_pre = line_sep[0].split("~")
+                    chrom_pre = line_sep[0].replace('"', '').split("~")
                     # Chromsome, event start coordinate 1, event start coordinate 2,
                     # strand.
                     chrom, cord1, cord2, strand = (chrom_pre[0], int(chrom_pre[1]), 
