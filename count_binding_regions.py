@@ -21,14 +21,14 @@ def count_binding_regions(deseq2_files, region_bed_file, counts_file_csv):
     counts_file_csv_out.write("DeSeq2_filename,BED_filename,Overlapping_count\n")
     # Opens, loops through list of Deseq2 produced files, and iterates through, 
     # saving the chromosome coordinate variables for comparison.
-    for de_file in deseq2_files:
+    for deseq2_file in deseq2_files:
         # Sets count used for recording the number of overlapping events.
         count = 0
-        with open(de_file) as open_de_file:
-            file_name = de_file.strip('"').split("/")[-1]
-            for line in open_de_file:
+        with open(deseq2_file) as open_deseq2_file:
+            file_name = deseq2_file.strip('"').split("/")[-1]
+            for line in open_deseq2_file:
                 line_sep = line.strip("\n").split(",")
-                if len(line_sep[0]) != 0:
+                if line.find("~") != 0:
                     chrom_pre = line_sep[0].split("~")
                     # Chromsome, event start coordinate 1, event start coordinate 2,
                     # strand.
@@ -105,8 +105,8 @@ def main():
     args_to_parse = init_argparse()
     parsed = args_to_parse.parse_args()
     # Iterates through and executes main functions.
-    count_binding_regions(parsed.deseq2_file, parsed.additional_bedfiles,
-                         parsed.joined_gtf_file)
+    count_binding_regions(parsed.deseq2_file, parsed.region_bed_file,
+                         parsed.counts_file_csv)
 
 # Executes main function.
 if __name__ == "__main__":
