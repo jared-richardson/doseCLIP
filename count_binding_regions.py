@@ -28,12 +28,12 @@ def count_binding_regions(deseq2_files, region_bed_file, counts_file_csv):
             file_name = deseq2_file.strip('"').split("/")[-1]
             for line in open_deseq2_file:
                 line_sep = line.strip("\n").split(",")
-                if line.find("~") != 0:
+                if line.find("~") != -1:
                     chrom_pre = line_sep[0].replace('"', '').split("~")
                     # Chromsome, event start coordinate 1, event start coordinate 2,
-                    # strand.
+                    # strand. Strips "g" from strand.
                     chrom, cord1, cord2, strand = (chrom_pre[0], int(chrom_pre[1]), 
-                                                   int(chrom_pre[2]), chrom_pre[3])
+                                                   int(chrom_pre[2]), chrom_pre[3].rstrip("g"))
                     # Opens, loops through BED file, and iterates through, saving the 
                     # chromosome coordinate variables for comparison.    
                     with open(region_bed_file) as open_region_bed_file:
