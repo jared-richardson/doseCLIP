@@ -26,7 +26,14 @@ input_fastq_file_read2.fastq \
 ```
 The next step is to remove the PCR duplicates. I developed a script to do this **collapse_pcr_duplicates.py**. The script also has a Pytest testing script 
 (**test_collapse_pcr_duplicates.py**) and associated testing files. This can be used on your system by typing the `pytest` command in the script's directory (after 
-installing pytest). The options for the **collapse_pcr_duplicates.py** script can be found using the command `python collapse_pcr_duplicates.py -h`. The script requires paired-end Illumina sequencing data.
+installing pytest). The options for the **collapse_pcr_duplicates.py** script can be found using the command `python collapse_pcr_duplicates.py -h`. The script requires paired-end Illumina sequencing data. An example of how to run the script is below.
+```
+python /Users/jared.richardson/Desktop/doseclip/code/doseCLIP/collapse_pcr_duplicates.py \
+-r1 1_S1_R1_001.fastq \
+-r2 1_S1_R2_001.fastq \
+-r1o 1_S1_R1_001_umi.fastq \
+-r2o 1_S1_R2_001_umi.fastq
+```
 **Step 2: Read alignment.
 The next step is read alignment. Previously, I used to trim the reads a second time and then align. This used to be a requirement for many 
 aligners, as the effectiveness of soft clipping varies by aligner. Minimap2 is highly effective at aligning regions that match genomic regions, 
