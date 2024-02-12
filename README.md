@@ -44,7 +44,7 @@ Subread for aligning and the following are the commands I use. The first command
 subread-buildindex -o index_directory -M ram_in_megabytes genomic_target_file.fasta
 ```
 ```
-subjunc -T threads_to_use -S fr -i index_directory \
+subjunc -t 0 -T threads_to_use -S fr -i index_directory \
 -r input_fastq_file_read1.fastq \
 -R input_fastq_file_read2.fastq \
 -o output_alignment_file.bam
