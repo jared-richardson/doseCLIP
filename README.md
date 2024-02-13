@@ -1,8 +1,7 @@
 # doseCLIP Data Processing
-This page contains the custom scripts required to process doseCLIP data. DoseCLIP is performed using the eCLIP protocol and uses their adapters/primers.  I will also 
-include the commands for the use of open-source programs in the pipeline and the order of each step. Note- Python 3.6 or greater should be used to execute Python scripts.
+This page contains the custom scripts required to process doseCLIP data (paper in preparation). DoseCLIP is performed using the eCLIP protocol and uses their adapters/primers. I will also include the commands for the use of open-source programs in the pipeline and the order of each step. Note- Python 3.6 or greater should be used to execute Python scripts.
 ## Step 1: Adapter trimming and PCR duplicate removal.
-The first step is use Cutadapt to trim the reads. Please see the Cutadapt guide (https://cutadapt.readthedocs.io/en/stable/guide.html) for 
+The first step is to use Cutadapt to trim the reads. Please see the Cutadapt guide (https://cutadapt.readthedocs.io/en/stable/guide.html) for 
 more information. The command I use for the first trim is as follows. The parameter `-j` should be set to the number of cores desired to be used when executing.
 ```
 cutadapt --match-read-wildcards --nextseq-trim=10 -q 10 --times 1  -e 0.05  -O 10 -m 18 -j 1 \
@@ -26,7 +25,7 @@ input_fastq_file_read2.fastq \
 ```
 The next step is to remove the PCR duplicates. I developed a script to do this **collapse_pcr_duplicates.py**. The script also has a Pytest testing script 
 (**test_collapse_pcr_duplicates.py**) and associated testing files. This can be used on your system by typing the `pytest` command in the script's directory (after 
-installing pytest). The options for the **collapse_pcr_duplicates.py** script can be found using the command `python collapse_pcr_duplicates.py -h`. The script requires paired-end Illumina sequencing data. An example of how to run the script is below.
+installing pytest using pip). The options for the **collapse_pcr_duplicates.py** script can be found using the command `python collapse_pcr_duplicates.py -h`. The script requires paired-end Illumina sequencing data. An example of how to run the script is below.
 ```
 python /Users/jared.richardson/Desktop/doseclip/code/doseCLIP/collapse_pcr_duplicates.py \
 -r1 1_S1_R1_001.fastq \
@@ -36,7 +35,7 @@ python /Users/jared.richardson/Desktop/doseclip/code/doseCLIP/collapse_pcr_dupli
 ```
 **Step 2: Read alignment.
 The next step is read alignment. Previously, I used to trim the reads a second time and then align. This used to be a requirement for many 
-aligners, as the effectiveness of soft clipping varies by aligner. Minimap2 is highly effective at aligning regions that match genomic regions, 
+aligners, as the effectiveness of soft clipping varies by aligner. Most modern aligners, including Subread, are highly effective at aligning regions that match genomic regions, 
 making it so a second trimming is not necessary. The first trim would not be necessary either, if it not for the need to remove PCR duplicates. 
 PCR duplicates are identified using the UMI sequence that itself is identified as being immediately adjacent to the adapter sequence. I used 
 Subread for aligning and the following are the commands I use. The first command is to build the genome target index and the `-M` parameter is used to specify the amount of memory to use in megabytes. The second command is for read alignment. For this step, both the regular CLIP files and the SM controls should be aligned. The `-T` parameter is the number of threads to use. It is important to ensure that the PE orientation (`-S`) parameter is set correctly. For samples that were produced following the eCLIP protocol, it should match below (`-S fr`).
@@ -44,7 +43,7 @@ Subread for aligning and the following are the commands I use. The first command
 subread-buildindex -o index_directory -M ram_in_megabytes genomic_target_file.fasta
 ```
 ```
-subjunc -t 0 -T threads_to_use -S fr -i index_directory \
+subjunc -t 1 -T threads_to_use -S fr -i index_directory \
 -r input_fastq_file_read1.fastq \
 -R input_fastq_file_read2.fastq \
 -o output_alignment_file.bam
