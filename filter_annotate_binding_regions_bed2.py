@@ -92,7 +92,8 @@ def add_events_to_dictionary(filtered_file, regular_gtf_file):
                             else:    
                                 sub_gene_line = f"{sub_gene_line}~{event_type}"
             # Adds all information to region_dictionary for output.
-            region_dictionary[line_split[0]] = f"{line_clean}={gene_line}={sub_gene_line}"         
+            region_dictionary[chromosome + "=" + str(cordinate1) + "=" 
+                              + str(cordinate1) + "=" + strand] = f"{line_clean}={gene_line}={sub_gene_line}"         
     open_filtered_file.close()
     return region_dictionary
 
