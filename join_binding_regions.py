@@ -164,14 +164,18 @@ def output_file(region_dictionary_out, joined_gtf_file):
     # Outputs sorted list in GTF format. Outputs gene and transcript annotation for each event.
     for item in sorted_list:
         item_split = item.split("_")
-        joined_gtf_file_out.write(item_split[0] + "\t" + "pir" + "\t" + "gene" + "\t" + item_split[1] + "\t" + item_split[2] \
+        # Changes first coordinate to 1 if 0. This is done to avoid errors in downstream
+        # analysis.
+        if item_split[1] == "0":
+            coordinate_1 = "1"
+        joined_gtf_file_out.write(item_split[0] + "\t" + "pir" + "\t" + "gene" + "\t" + coordinate_1 + "\t" + item_split[2] \
                                   + "\t" + item_split[4] + "\t" + item_split[5] + "\t" + item_split[6] + "\t" + 'gene_id "' \
-                                  + item_split[0] + "~" + item_split[1] + "~" + item_split[2] + "~" + item_split[5] +'g"; ' \
+                                  + item_split[0] + "~" + coordinate_1 + "~" + item_split[2] + "~" + item_split[5] +'g"; ' \
                                   + 'gene_version "1"; ' + "\n")
-        joined_gtf_file_out.write(item_split[0] + "\t" + "pir" +"\t"+ "transcript" + "\t" + item_split[1] + "\t" + item_split[2] \
+        joined_gtf_file_out.write(item_split[0] + "\t" + "pir" +"\t"+ "transcript" + "\t" + coordinate_1 + "\t" + item_split[2] \
                                   + "\t" + item_split[4] + "\t" + item_split[5] + "\t" + item_split[6] + "\t" + 'gene_id "' \
-                                  + item_split[0] + "~" + item_split[1] + "~" + item_split[2] + "~"  +item_split[5] + '"; ' \
-                                  + 'gene_version "1"; ' + 'transcript_id "' +item_split[0] + "~" + item_split[1] + "~" \
+                                  + item_split[0] + "~" + coordinate_1 + "~" + item_split[2] + "~"  +item_split[5] + '"; ' \
+                                  + 'gene_version "1"; ' + 'transcript_id "' +item_split[0] + "~" + coordinate_1 + "~" \
                                   + item_split[2] + "~" + item_split[5] + 't"; ' + "\n")
     joined_gtf_file_out.close()
 
