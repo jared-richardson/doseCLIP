@@ -227,7 +227,9 @@ def remove_lower_regions(deseq_file_list):
             for line in open_file:
                 line_clean = line.strip("\n")
                 line_list = line_clean.split(",")
-                if len(line_list[0]) > 1:
+                # Checks for title line. Depends on length of 
+                # string in the first column.
+                if len(line_list[0]) > 2:
                     # Checks to see if the binding region has already been found.
                     # If so, saves the binding region to the lower_region dictionary.
                     # If not, saves the binding region to the lower_region_set.
@@ -238,6 +240,7 @@ def remove_lower_regions(deseq_file_list):
                     all_regions[file_name][line_list[0]] = line_clean
                 else:
                     title_dictionary[file_name] = line_clean
+    # Printing only keys from dictionaries for testing.                               
     return lower_region, all_regions, title_dictionary             
 
 def output_file(average_counts, lower_region, all_regions, 
@@ -334,7 +337,7 @@ def init_argparse():
                                 the samples in the normalized counts file. The file is in CSV \
                                 format. No title required. \
                                 Format- filename,deseq_sample_name,...", required = True)
-    parser.add_argument("-o", "--output", action = "store", type = str, default = "",
+    parser.add_argument("-o", "--output", action = "store", type = str, default = "./",
                         help = "Directory output to add to the output file name.", 
                                 required = False)                                                                          
     return parser
