@@ -205,6 +205,23 @@ Data Types:
                             "chr6_pir_transcript_100_6000_15_-_0.00111111_gene_id \"chr6~100~6000~-\"; gene_version \"1\"; transcript_id \"chr6~100~6000~-t\"; "]),
                           # count_match  
                           (28)),
+                          # Test 4: Joined with two BED files, assorted overlapping entries with multiple
+                         # chromosomes.
+                         # sample_1_bedfile
+                         (("test_files/join_binding_regions/test4.bed"),
+                          # additional_bedfiles
+                          (["test_files/join_binding_regions/test42.bed",
+                            "test_files/join_binding_regions/test43.bed",
+                            "test_files/join_binding_regions/test44.bed"]),
+                          # joined_gtf_file
+                          ("test_files/join_binding_regions/test4_out.bed"),
+                          # results_list
+                          (["chr1_pir_gene_100_500_15_+_0.00103521_gene_id \"chr1~100~500~+g\"; gene_version \"1\"; ",
+                            "chr1_pir_transcript_100_500_15_+_0.00103521_gene_id \"chr1~100~500~+\"; gene_version \"1\"; transcript_id \"chr1~100~500~+t\"; ",
+                            "chr1_pir_gene_600_1700_15_+_0.00103521_gene_id \"chr1~600~1700~+g\"; gene_version \"1\"; ",
+                            "chr1_pir_transcript_600_1700_15_+_0.00103521_gene_id \"chr1~600~1700~+\"; gene_version \"1\"; transcript_id \"chr1~600~1700~+t\"; "]),
+                          # count_match  
+                          (4)),
                          ])
 
 def test_join_binding_regions(sample_1_bedfile, additional_bedfiles, joined_gtf_file,
