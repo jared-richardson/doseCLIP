@@ -115,7 +115,7 @@ def get_average_counts(normalized_counts, sample_names):
                 # Uses the sample_location_list to grab the columns specific
                 # to the different samples for a single protein concentration.
                 # If statement skips title line.
-                if len(line_list[0]) > 1:
+                if len(line_list[0]) > 2:
                     binding_region = line_list[0]
                     # Saves the normalized counts for each sample.
                     normalized_counts_list = []
