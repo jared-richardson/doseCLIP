@@ -398,9 +398,18 @@ def output_region_and_file_data(file_dictionary, output):
             # Only outputs if region has not been output yet.
             if region_name not in region_set:
                 secondary_per_region_output_file.write(region_name + ",")
-                secondary_per_region_output_file.write(str(100 *(structure_paired_sum_region / structured_total_region)) + ",")
-                secondary_per_region_output_file.write(str(100 *(y_paired_sum_region / y_total_region)) + ",")
-                secondary_per_region_output_file.write(str(100 *(gc_paired_sum_region / gc_total_region)) + "\n")
+                if structured_total_region != 0:
+                    secondary_per_region_output_file.write(str(100 *(structure_paired_sum_region / structured_total_region)) + ",")
+                else:
+                    secondary_per_region_output_file.write("0,")
+                if y_total_region != 0:
+                    secondary_per_region_output_file.write(str(100 *(y_paired_sum_region / y_total_region)) + ",")
+                else:
+                    secondary_per_region_output_file.write("0,")          
+                if gc_total_region != 0:
+                    secondary_per_region_output_file.write(str(100 *(gc_paired_sum_region / gc_total_region)) + "\n")
+                else:
+                    secondary_per_region_output_file.write("0\n")    
                 region_set.add(region_name)
             # Adds to sums for each file.
             structure_paired_sum += structure_paired_sum_region
@@ -411,9 +420,18 @@ def output_region_and_file_data(file_dictionary, output):
             gc_total += gc_total_region            
         # Outputs the percentage of paired nucleotides for each file.
         secondary_per_file_output_file.write(file_name + ",")
-        secondary_per_file_output_file.write(str(100 *(structure_paired_sum / structured_total)) + ",")
-        secondary_per_file_output_file.write(str(100 *(y_paired_sum / y_total)) + ",")
-        secondary_per_file_output_file.write(str(100 *(gc_paired_sum / gc_total)) + "\n")
+        if structured_total != 0:
+            secondary_per_file_output_file.write(str(100 *(structure_paired_sum / structured_total)) + ",")
+        else:
+            secondary_per_file_output_file.write("0,")
+        if y_total != 0:
+            secondary_per_file_output_file.write(str(100 *(y_paired_sum / y_total)) + ",")
+        else:
+            secondary_per_file_output_file.write("0,")
+        if gc_total != 0:
+            secondary_per_file_output_file.write(str(100 *(gc_paired_sum / gc_total)) + "\n")        
+        else:
+            secondary_per_file_output_file.write("0\n")
 
 def init_argparse():
     """Initiates the use of argparse. Returns parsed
