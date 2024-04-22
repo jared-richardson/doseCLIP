@@ -101,8 +101,9 @@ def match_binding_to_splicing(binding_regions, splicing_dictionary, distance,
         line_split = line.split(",")
         # Grabs normalized counts from the last column for each region.
         normalized_count = line_split[-1].strip("\n")
+        print(line)
         # Skips header line for DESeq2 output file.
-        if (line[0].find("~") != -1):
+        if (line.find("~") != -1):
             region_pre = line_split[0].replace('"','').split("~")
             region_size = int(region_pre[2]) - int(region_pre[1])
             # region_key = [chromosome, region-start, region-end, strand, region-size, base-mean]
@@ -112,12 +113,14 @@ def match_binding_to_splicing(binding_regions, splicing_dictionary, distance,
             for key_pre in splicing_dictionary:
                 key = key_pre.split("~")
                 # Checks if chromosome and strand match.
+                print(region_list)
                 if (key[1] == region_list[0] and key[4] == region_list[3]):
+                    print(region_list)
                     # Checks if binding region is within distance of splicing event.
-                    if (((int(key[2]) - int(region_list[1])) <= distance) or
-                        ((int(key[3]) - int(region_list[1])) <= distance) or
-                        ((int(key[2]) - int(region_list[2])) <= distance) or
-                        ((int(key[3]) - int(region_list[2])) <= distance)):
+                    if ((abs(int(key[2]) - int(region_list[1])) <= distance) or
+                        (abs(int(key[3]) - int(region_list[1])) <= distance) or
+                        (abs(int(key[2]) - int(region_list[2])) <= distance) or
+                        (abs(int(key[3]) - int(region_list[2])) <= distance)):
                         # Region position is the distance from the start of the region to the
                         # start of the splicing event. A positive region position means the
                         # binding region is 3' (up in coordinate number), a negative number
