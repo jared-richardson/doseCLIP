@@ -101,7 +101,6 @@ def match_binding_to_splicing(binding_regions, splicing_dictionary, distance,
         line_split = line.split(",")
         # Grabs normalized counts from the last column for each region.
         normalized_count = line_split[-1].strip("\n")
-        print(line)
         # Skips header line for DESeq2 output file.
         if (line.find("~") != -1):
             region_pre = line_split[0].replace('"','').split("~")
@@ -113,9 +112,7 @@ def match_binding_to_splicing(binding_regions, splicing_dictionary, distance,
             for key_pre in splicing_dictionary:
                 key = key_pre.split("~")
                 # Checks if chromosome and strand match.
-                print(region_list)
                 if (key[1] == region_list[0] and key[4] == region_list[3]):
-                    print(region_list)
                     # Checks if binding region is within distance of splicing event.
                     if ((abs(int(key[2]) - int(region_list[1])) <= distance) or
                         (abs(int(key[3]) - int(region_list[1])) <= distance) or
