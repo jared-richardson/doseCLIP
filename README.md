@@ -194,7 +194,7 @@ duplicates collapsed, reads aligned, and binding regions determined by Piranha. 
 background (standard Piranha output). Although the sample will contain false positives, it is still useful for determining if the doseCLIP libraries were made successfully. 
 The first step is to determine the overlapping regions between the past HITS-CLIP dataset and each filtered doseCLIP sample. This can be performed using the 
 **count_binding_regions.py** script. See the script for execution instructions (`python count_binding_regions.py -h`). This script can be tested using the 
-`pytest test_filter_annotate_binding_regions.py` command. The previously annotated SM filtered DESeq2 produced files (the x50_clip_sm_filtered_annot.csv output file 
+`pytest test_count_binding_regions.py` command. The previously annotated SM filtered DESeq2 produced files (the x50_clip_sm_filtered_annot.csv output file 
 from the example above) should be checked for overlapping events. This means that for a doseCLIP sample set with six protein concentrations, including uninduced, the 
 script should have six DESeq2 produced files input, with one BED file. The script will produce a text file with the counts of overlapping events for each DESeq2 produced 
 file. These numbers can be used to make a figure showing the numbers of overlapping regions. Next, the Piranha produced BED file itself (from the past HITS-CLIP sample) can 
