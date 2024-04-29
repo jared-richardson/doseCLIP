@@ -91,6 +91,7 @@ def add_events_to_dictionary(filtered_file, regular_gtf_file):
                                 sub_gene_line = event_type
                             else:    
                                 sub_gene_line = f"{sub_gene_line}~{event_type}"
+
             # Adds all information to region_dictionary for output.
             region_dictionary[chromosome + "=" + str(cordinate1) + "=" 
                               + str(cordinate1) + "=" + strand] = f"{line_clean}={gene_line}={sub_gene_line}"         
@@ -290,12 +291,20 @@ def make_gtf_object(regular_gtf_file):
                     if (event_type == "UTR"):
                         utr_cord1 = int(line_gtf_split[3])
                         utr_cord2 = int(line_gtf_split[4])
-                        cord1_difference = abs(transcript_cord1 - utr_cord1)
-                        cord2_difference = abs(transcript_cord2 - utr_cord2)
-                        if (cord1_difference > cord2_difference):
-                            event_type = "3_UTR"
+                        if strand == "+":
+                            cord1_difference = abs(transcript_cord1 - utr_cord1)
+                            cord2_difference = abs(transcript_cord2 - utr_cord1)
+                            if (cord1_difference > cord2_difference):
+                                event_type = "3_UTR"
+                            else:
+                                event_type = "5_UTR"
                         else:
-                            event_type = "5_UTR"
+                            cord1_difference = abs(transcript_cord1 - utr_cord2)
+                            cord2_difference = abs(transcript_cord2 - utr_cord2)
+                            if (cord1_difference > cord2_difference):
+                                event_type = "5_UTR"
+                            else:
+                                event_type = "3_UTR"        
                     # If transcript feature, saves coordinates to determine UTR type.        
                 if (event_type == "transcript"):
                     transcript_cord1 = int(line_gtf_split[3])

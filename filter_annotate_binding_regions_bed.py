@@ -1,8 +1,31 @@
-import argparse        
+import argparse
+
+def filter_annotate_binding_regions(bed_file, regular_gtf_file,
+                                    output_directory):
+    """BED file and executes the data through other functions to output
+        the annotated/filtered data.
+
+        Arguments:
+        bed_file -- BED file with binding regions. This file
+            would be produced from a separate experiment where there
+            where no SM Input samples.
+        regular_gtf_file -- Gencode/Ensembl/UCSC provided GTF file. Should be the GTF
+            annotation for the target alignment sequence. The file is used to annotate
+            the binding regions.      
+        output_directory -- Output directory for the output files. 
+
+        Output:
+            This function has no output.        
+
+    """
+    # Processes BED file for output.
+    if output_directory[-1] != "/":
+        output_directory = f"{output_directory}/"
+    output_file(bed_file, regular_gtf_file, output_directory) 
                         
-def add_events_to_dictionary(bed_file, regular_gtf_file):
-    """Takes input BED file with binding regions and annotated each region using
-        a GTF file. Outputs information in dictionary.
+def add_events_to_dictionary(filtered_file, regular_gtf_file):
+    """Takes an input counts file, annotates it and adds to a dictionary
+        for output.
 
         Arguments:
         bed_file -- BED file with binding regions. This file
@@ -11,78 +34,72 @@ def add_events_to_dictionary(bed_file, regular_gtf_file):
         regular_gtf_file -- Gencode/Ensembl/UCSC provided GTF file. Should be the GTF
             annotation for the target alignment sequence. The file is used to annotate
             the binding regions.
+            
+        Output:    
+        region_dictionary -- Filled output dictionary with each binding region names
+            as the key and the clean line as the value.
+            {"region_name": "line_clean=gene_line=sub_gene_line"}.
 
-        Output:
-        region_dictionary -- Dictionary containing the event name (chromosome information)
-            as the key and the entire BED line with gene information as the value.
-            {"chromosome_gtf,cordinate1_gtf,cordinate2_gtf,strand_gtf": 
-             "line_clean=gene_line=sub_gene_line"}   
-    """
+    """                      
     # Dictionary that stores each read pileup region.
     region_dictionary = {}
-    # Iterates through the BED file and saves chromosome information for comparison
-    # to GTF file. Compares each event to each event in the GTF file and adds gene
-    # information with the event information to a dictionary for output.                  
-    with open(bed_file) as open_bed_file:
-        for line in open_bed_file:
+    # Saves title line.
+    title_line = ""
+    # Saves GTF information to object for faster annotation.
+    gtf_object = make_gtf_object(regular_gtf_file)
+    # Iterates through each line in the counts file (CSV) and adds it to the dictionary.
+    # Also, looks for gene and sub-gene information from GTF file.                     
+    with open(filtered_file) as open_filtered_file:
+        for line in open_filtered_file:
             # Cleans and parses line.
-            line_clean = line.strip("\n").replace("\t",",")
-            line_split = line_clean.split(",")
+            line_clean = line.strip("\n")
+            line_split = line_clean.split("\t")
             # Used to save gene and sub-gene information, for addition
             # to output after iterating through GTF file.
             gene_line = ""
             sub_gene_line = ""
-            # Saves information needed to compare to GTF.
-            chromosome, cordinate1, cordinate2, strand = (line_split[0], int(line_split[1]),
-                                                          int(line_split[2]), line_split[5])
-            event_name = f"{chromosome}~{cordinate1}~{cordinate2}~{strand}" 
-            # Iterates through each line in the GTF file (TSV) and looks for overlap
-            # with binding region. If overlap, saves needed information for output.                      
-            with open(regular_gtf_file) as open_regular_gtf_file:
-                for line_gtf in open_regular_gtf_file:
-                    if line_gtf[0] != "#":
-                        line_gtf_split = line_gtf.strip("\n").split("\t")
-                        # Saves data needed for comparison.
-                        chromosome_gtf, cordinate1_gtf = line_gtf_split[0], int(line_gtf_split[3])
-                        cordinate2_gtf, strand_gtf = int(line_gtf_split[4]), line_gtf_split[6]
-                        # Checks for identical chromosome, strand, and overlap between the
-                        # binding region and the gene/sub-gene feature. 
-                        if ((chromosome == chromosome_gtf) and (strand == strand_gtf)
-                            and (((cordinate1_gtf <= cordinate1) and (cordinate1 <= cordinate2_gtf)) 
-                                or ((cordinate1_gtf <= cordinate2) and (cordinate2 <= cordinate2_gtf))
-                                or ((cordinate1_gtf <= cordinate1) and (cordinate2 <= cordinate2_gtf))
-                                or ((cordinate1_gtf >= cordinate1) and (cordinate2 >= cordinate2_gtf)))):
-                            # If GTF is a gene line, saves needed gene information to string for output. 
-                            if (line_gtf_split[2] == "gene"):
-                                gene_data = line_gtf_split[8].split(";")
-                                gene_id_pre = gene_data[0].split('"')
-                                gene_id = gene_id_pre[1]
-                                gene_type_pre = gene_data[1].split('"')
-                                gene_type = gene_type_pre[1]
-                                gene_name_pre = gene_data[2].split('"')
-                                gene_name = gene_name_pre[1]
-                                # Checks to see if there has been a gene that has already been
-                                # found that overlaps. This should be a rare occurance. If no
-                                # previous gene, saves new data, if previous then adds additional
-                                # gene information to string for output.
-                                if len(gene_line) == 0:
-                                    gene_line = f"{gene_id}~{gene_type}~{gene_name}"
-                                else:
-                                    gene_line = f"{gene_line}~{gene_id}~{gene_type}~{gene_name}"
-                            # Performs same as above for the gene line but for sub-gene features.            
-                            elif (line_gtf_split[2] != "transcript"):
-                                if len(sub_gene_line) == 0:
-                                    sub_gene_line = line_gtf_split[2]
-                                else:    
-                                    sub_gene_line = f"{sub_gene_line}~{line_gtf_split[2]}"
+            gene_list = []
+            # Saves gene information.
+            chromosome = line_split[0]
+            cordinate1 = int(line_split[1])
+            cordinate2 = int(line_split[2])
+            strand = line_split[5]
+            chrom_dictionary = gtf_object.get(chromosome)
+            if chrom_dictionary != None:
+                gene_list = chrom_dictionary.get(strand)
+            if gene_list != None:
+                for gene in gene_list:
+                    if (((gene[0] <= cordinate1) and (cordinate1 <= gene[1])) or
+                       ((gene[0] <= cordinate2) and (cordinate2 <= gene[1])) or
+                       ((gene[0] <= cordinate1) and (cordinate2 <= gene[1])) or
+                       ((gene[0] >= cordinate1) and (cordinate2 >= gene[1]))):
+                        gene_id, gene_type, gene_name, event_type = gene[2], gene[3], gene[4], gene[5]
+                        # Checks to see if there has been a gene that has already been
+                        # found that overlaps. This should be a rare occurance. If no
+                        # previous gene, saves new data, if previous then adds additional
+                        # gene information to string for output.
+                        if (event_type == "gene"):
+                            if len(gene_line) == 0:
+                                gene_line = f"{gene_id}~{gene_type}~{gene_name}"
+                            else:
+                                gene_line = f"{gene_line}~{gene_id}~{gene_type}~{gene_name}"   
+                        # Performs same as above for the gene line but for sub-gene features.            
+                        if ((event_type != "transcript") and (event_type != "gene")):
+                        # Classifies UTR type. If first coordinate is closer to first transcript
+                        # coordinate, classifies as a 5' UTR, else classifies as 3' UTR.     
+                            if len(sub_gene_line) == 0:
+                                sub_gene_line = event_type
+                            else:    
+                                sub_gene_line = f"{sub_gene_line}~{event_type}"
+
             # Adds all information to region_dictionary for output.
-            region_dictionary[event_name] = f"{line_clean}={gene_line}={sub_gene_line}" 
-    open_bed_file.close()
+            region_dictionary[chromosome + "=" + str(cordinate1) + "=" 
+                              + str(cordinate1) + "=" + strand] = f"{line_clean}={gene_line}={sub_gene_line}"         
+    open_filtered_file.close()
     return region_dictionary
 
-def annotate_output_file(bed_file, regular_gtf_file, bed_file_out):
-    """Takes input BED file with binding regions and annotated each region using
-        a GTF file. Outputs information in BED format with additional columns.
+def output_file(bed_file, regular_gtf_file, output_directory):
+    """BED file, annotates, and outputs in BED format. 
 
         Arguments:
         bed_file -- BED file with binding regions. This file
@@ -90,26 +107,31 @@ def annotate_output_file(bed_file, regular_gtf_file, bed_file_out):
             where no SM Input samples.
         regular_gtf_file -- Gencode/Ensembl/UCSC provided GTF file. Should be the GTF
             annotation for the target alignment sequence. The file is used to annotate
-            the binding regions.
-
-        Output:
+            the binding regions.      
+        output_directory -- Output directory for the output files.    
+            
+        Output:    
         bed_file_out -- GTF Annotated BED file with binding regions. This file
             would be produced from a separate experiment where there
             where no SM Input samples.
     """
-    # Opens outfile for writing to.
-    bed_file_out_write = open(bed_file_out, "w")
-    # Finds overlapping gene events and adds them to a dictionary.
-    region_dictionary = add_events_to_dictionary(bed_file, regular_gtf_file) 
+    # Initializes variables needed to be iterated through.
+    region_dictionary_sm = {}
+    region_dictionary = {}
+    # Grabs gene information.
+    region_dictionary_count = add_events_to_dictionary(bed_file, regular_gtf_file)
+    # Opens file for output.
+    bed_file = (output_directory + "annotated.bed")
+    bed_file_out = open(bed_file, "w")
     # Counts and outputs sub-gene types for the sample.
-    count_and_output_sub_genes(region_dictionary, bed_file_out) 
+    count_and_output_sub_genes(region_dictionary_count, output_directory)
     # Iterates through dictionary and outputs each annotated binding region.           
-    for region in region_dictionary:
+    for region in region_dictionary_count:
         # Strings used to output multiple genes or sub-genes. 
         # This should be rare.
         all_genes = ""
         all_sub_genes = ""
-        region_line = region_dictionary.get(region)
+        region_line = region_dictionary_count.get(region)
         region_split = region_line.split("=")
         # Checks for multiple gene entries and outputs appropriately.
         if (region_split[1].find("~") != -1):
@@ -132,33 +154,29 @@ def annotate_output_file(bed_file, regular_gtf_file, bed_file_out):
         else:               
             sub_gene = region_split[2]
         output = f"{region_split[0]},{gene},{sub_gene},{all_genes},{all_sub_genes}"
-        # Adds tabs for output.
-        output_tab = output.replace(",","\t")
-        bed_file_out_write.write(output_tab + "\n")
-    bed_file_out_write.close()
+        bed_file_out.write(output + "\n")
+    bed_file_out.close()
 
-def count_and_output_sub_genes(region_dictionary, bed_file_out):
+def count_and_output_sub_genes(region_dictionary, output_directory):
     """Takes an input region dictionary and outputs counts of annotation information.
 
         Arguments:
         region_dictionary -- Filled output dictionary with each binding region names
             as the key and the clean line as the value.
             {"region_name": "line_clean=gene_line=sub_gene_line"}.
+        output_directory -- Output directory for the output files.     
             
         Output:    
-        bed_file_out -- Sub-gene counts of binding regions. This file
-            would be produced from a separate experiment where there
-            where no SM Input samples.
-            File Format: Sub-Gene Type, Sub-Gene Count
+        event_counts -- Output counts file. Contains overlapping
+            event counts for each input file.
     """
     # Initializes dictionary for sub-gene regions and counts.
     # [sub_gene] = sub_gene_count
     sub_gene_dictionary = {}
-    # Adds the ".annotation_counts.csv" suffix to the
-    # output file name and opens the file for writing.
-    bed_file_out = bed_file_out.replace(".bed", ".annotation_counts.csv")
-    file_out_open = open(bed_file_out, "w")
-    # Iterates through dictionary and outputs each annotated binding region.        
+    # Opens file for output.
+    output_file = (output_directory + "sub_gene_counts.csv")
+    counts_out = open(output_file, "w")
+    # Iterates through dictionary and outputs each annotated binding region.          
     for region in region_dictionary:
         # Sets gene_flag boolean to indicate if region was present in
         # a gene.
@@ -222,12 +240,90 @@ def count_and_output_sub_genes(region_dictionary, bed_file_out):
              sub_gene_count = (sub_gene_count + 1)
              sub_gene_dictionary[sub_gene] = sub_gene_count       
     # Writes out each sub-gene type and count.         
-    file_out_open.write("Sub-Gene Type,Sub-Gene Count\n")
+    counts_out.write("Sub-Gene Type,Sub-Gene Count\n")
     for sub_gene in sub_gene_dictionary:
         sub_gene_count = sub_gene_dictionary.get(sub_gene)
         output = f"{sub_gene},{sub_gene_count}\n"
-        file_out_open.write(output)
-    file_out_open.close()
+        counts_out.write(output)
+    counts_out.close()
+
+def make_gtf_object(regular_gtf_file):
+    """Takes a GTF file and creates a GTF object from it.
+
+        Arguments:
+        regular_gtf_file -- Gencode/Ensembl/UCSC provided GTF file. Should be the GTF
+            annotation for the target alignment sequence. The file is used to annotate
+            the binding regions.
+            
+        Output:    
+        gtf_object -- GTF object created from the GTF file. Object is organized by
+            chromosome, strand, and then cordinate. The object is used to annotate
+            the binding regions.
+        {chromsome: {strand: [coordinate1, coordinate2, gene_id, gene_type, 
+                              gene_name, event_type]}}
+    """
+    gtf_object = {}
+    # Iterates through each line in the GTF file (TSV) and adds 
+    # each line to the GTF object.                      
+    with open(regular_gtf_file) as open_regular_gtf_file:
+        for line_gtf in open_regular_gtf_file:
+            # Skips title lines.
+            if line_gtf[0] != "#":
+                line_gtf_split = line_gtf.strip("\n").split("\t")
+                # Saves data needed for comparison.
+                chromosome, coordinate1 = line_gtf_split[0], int(line_gtf_split[3])
+                coordinate2, strand = int(line_gtf_split[4]), line_gtf_split[6]
+                # Saves the event feature (type) as a variable.
+                event_type = line_gtf_split[2]
+                # If line is a gene line, saves needed gene information to string for output. 
+                if (event_type == "gene"):
+                    gene_data = line_gtf_split[8].split(";")
+                    gene_id_pre = gene_data[0].split('"')
+                    gene_id = gene_id_pre[1]
+                    gene_type_pre = gene_data[1].split('"')
+                    gene_type = gene_type_pre[1]
+                    gene_name_pre = gene_data[2].split('"')
+                    gene_name = gene_name_pre[1]
+                # Performs same as above for the gene line but for sub-gene features.            
+                if ((event_type != "transcript") and (event_type != "gene")):
+                    # Classifies UTR type. If first coordinate is closer to first transcript
+                    # coordinate, classifies as a 5' UTR, else classifies as 3' UTR.
+                    if (event_type == "UTR"):
+                        utr_cord1 = int(line_gtf_split[3])
+                        utr_cord2 = int(line_gtf_split[4])
+                        if strand == "+":
+                            cord1_difference = abs(transcript_cord1 - utr_cord1)
+                            cord2_difference = abs(transcript_cord2 - utr_cord1)
+                            if (cord1_difference > cord2_difference):
+                                event_type = "3_UTR"
+                            else:
+                                event_type = "5_UTR"
+                        else:
+                            cord1_difference = abs(transcript_cord1 - utr_cord2)
+                            cord2_difference = abs(transcript_cord2 - utr_cord2)
+                            if (cord1_difference > cord2_difference):
+                                event_type = "5_UTR"
+                            else:
+                                event_type = "3_UTR"        
+                    # If transcript feature, saves coordinates to determine UTR type.        
+                if (event_type == "transcript"):
+                    transcript_cord1 = int(line_gtf_split[3])
+                    transcript_cord2 = int(line_gtf_split[4])             
+                # Adds all information to gtf_object for output. Has to check to see if
+                # keys have been added previously. If so, adds to existing key, if not
+                # creates new key.
+                if chromosome in gtf_object:
+                    if strand in gtf_object[chromosome]:
+                        gtf_object[chromosome][strand].append([coordinate1, coordinate2, gene_id, 
+                                                               gene_type, gene_name, event_type])
+                    else:
+                        gtf_object[chromosome][strand] = [[coordinate1, coordinate2, gene_id, 
+                                                           gene_type, gene_name, event_type]]
+                else:
+                    gtf_object[chromosome] = {strand: [[coordinate1, coordinate2, gene_id,
+                                                        gene_type, gene_name, event_type]]}
+    open_regular_gtf_file.close()
+    return gtf_object            
 
 def init_argparse():
     """Initiates the use of argparse. Returns parsed
@@ -240,23 +336,22 @@ def init_argparse():
         Returns parser object. Object is used for function input.
     """
     # Script description.
-    parser = argparse.ArgumentParser(description = "Takes input BED file with binding regions and \
-                                                    annotated each region using a GTF file. Outputs \
-                                                    information in BED format with additional columns.")        
+    parser = argparse.ArgumentParser(description = "Takes input DeSeq2 produced files (normalized counts \
+                                                    or differential expression) and annotates the files, \
+                                                    and if normal CLIP file was input, filters it using \
+                                                    the SM Input file.")        
     # Command line arguments and descriptions.
-    parser.add_argument("-bed", "--bed_file", action = "store", type = str, 
+    parser.add_argument("-b", "--bed_file", action = "store", type = str, 
                         help="BED file with binding regions. This file \
                              would be produced from a separate experiment where there \
-                             where no SM Input samples..", required = True)
+                             where no SM Input samples.", required = True)
     parser.add_argument("-gtf", "--regular_gtf_file", action = "store", type = str, 
                         help = "Gencode/Ensembl/UCSC provided GTF file. Should be the GTF \
                                 annotation for the target alignment sequence. The file is \
                                 used to annotate the binding regions.", required = True)
-    parser.add_argument("-o", "--bed_file_out", action = "store", type = str, 
-                        help="GTF Annotated BED file with binding regions. This file \
-                              would be produced from a separate experiment where there \
-                              where no SM Input samples.", 
-                        required = True)                                                                            
+    parser.add_argument("-o", "--output_directory", action = "store", type = str,
+                        help = "Output directory for the output files.", \
+                                required = False)                                                                            
     return parser
 
 def main():
@@ -269,8 +364,11 @@ def main():
         regular_gtf_file -- Gencode/Ensembl/UCSC provided GTF file. Should be the GTF
             annotation for the target alignment sequence. The file is used to annotate
             the binding regions.
-
+        output_directory -- Output directory for the output files.        
+            
         Output:
+        event_counts -- Output counts file. Contains overlapping
+            event counts for each input file.
         bed_file_out -- GTF Annotated BED file with binding regions. This file
             would be produced from a separate experiment where there
             where no SM Input samples.    
@@ -279,8 +377,8 @@ def main():
     args_to_parse = init_argparse()
     parsed = args_to_parse.parse_args()
     # Iterates through and executes main functions.
-    annotate_output_file(parsed.bed_file, parsed.regular_gtf_file,
-                         parsed.bed_file_out)
+    filter_annotate_binding_regions(parsed.bed_file, parsed.regular_gtf_file,
+                                    parsed.output_directory)
 
 # Executes main function.
 if __name__ == "__main__":

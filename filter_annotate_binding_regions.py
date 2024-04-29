@@ -124,73 +124,6 @@ def add_events_to_dictionary(filtered_file, regular_gtf_file):
     open_filtered_file.close()
     return region_dictionary, title_line
 
-
-
-
-
-"""
-
-            # Iterates through each line in the GTF file (TSV) and looks for overlap
-            # with binding region. If overlap, saves needed information for output.                      
-            with open(regular_gtf_file) as open_regular_gtf_file:
-                for line_gtf in open_regular_gtf_file:
-                    if line_gtf[0] != "#":
-                        line_gtf_split = line_gtf.strip("\n").split("\t")
-                        # Saves data needed for comparison.
-                        chromosome_gtf, cordinate1_gtf = line_gtf_split[0], int(line_gtf_split[3])
-                        cordinate2_gtf, strand_gtf = int(line_gtf_split[4]), line_gtf_split[6]
-                        # Checks for identical chromosome, strand, and overlap between the
-                        # binding region and the gene/sub-gene feature.
-                        if ((chromosome == chromosome_gtf) and (strand == strand_gtf)
-                            and (((cordinate1_gtf <= cordinate1) and (cordinate1 <= cordinate2_gtf)) 
-                                or ((cordinate1_gtf <= cordinate2) and (cordinate2 <= cordinate2_gtf))
-                                or ((cordinate1_gtf <= cordinate1) and (cordinate2 <= cordinate2_gtf))
-                                or ((cordinate1_gtf >= cordinate1) and (cordinate2 >= cordinate2_gtf)))):
-                            # Saves the event feature (type) as a variable.
-                            event_type = line_gtf_split[2]
-                            # If GTF is a gene line, saves needed gene information to string for output. 
-                            if (event_type == "gene"):
-                                gene_data = line_gtf_sqplit[8].split(";")
-                                gene_id_pre = gene_data[0].split('"')
-                                gene_id = gene_id_pre[1]
-                                gene_type_pre = gene_data[1].split('"')
-                                gene_type = gene_type_pre[1]
-                                gene_name_pre = gene_data[2].split('"')
-                                gene_name = gene_name_pre[1]
-                                # Checks to see if there has been a gene that has already been
-                                # found that overlaps. This should be a rare occurance. If no
-                                # previous gene, saves new data, if previous then adds additional
-                                # gene information to string for output.
-                                if len(gene_line) == 0:
-                                    gene_line = f"{gene_id}~{gene_type}~{gene_name}"
-                                else:
-                                    gene_line = f"{gene_line}~{gene_id}~{gene_type}~{gene_name}"
-                            # Performs same as above for the gene line but for sub-gene features.            
-                            if ((event_type != "transcript") and (event_type != "gene")):
-                                # Classifies UTR type. If first coordinate is closer to first transcript
-                                # coordinate, classifies as a 5' UTR, else classifies as 3' UTR.
-                                if (event_type == "UTR"):
-                                    utr_cord1 = int(line_gtf_split[3])
-                                    utr_cord2 = int(line_gtf_split[4])
-                                    cord1_difference = abs(transcript_cord1 - utr_cord1)
-                                    cord2_difference = abs(transcript_cord2 - utr_cord2)
-                                    if (cord1_difference > cord2_difference):
-                                        event_type = "3_UTR"
-                                    else:
-                                        event_type = "5_UTR"      
-                                if len(sub_gene_line) == 0:
-                                    sub_gene_line = event_type
-                                else:    
-                                    sub_gene_line = f"{sub_gene_line}~{event_type}"
-                            # If transcript feature, saves coordinates to determine UTR type.        
-                            if (event_type == "transcript"):
-                                transcript_cord1 = int(line_gtf_split[3])
-                                transcript_cord2 = int(line_gtf_split[4])   
-            # Adds all information to region_dictionary for output.
-            region_dictionary[line_split[0]] = f"{line_clean}={gene_line}={sub_gene_line}" 
-    open_filtered_file.close()
-    return region_dictionary, title_line
-"""
 def output_file(sm_filtered_file, regular_gtf_file, sm_filtered_file_out, sample_keyword,
                 clip_regular_file = "None", clip_regular_file_out = "None"):
     """Takes DeSeq2 produced files, annotates, filters if SM and regular
@@ -443,12 +376,20 @@ def make_gtf_object(regular_gtf_file):
                     if (event_type == "UTR"):
                         utr_cord1 = int(line_gtf_split[3])
                         utr_cord2 = int(line_gtf_split[4])
-                        cord1_difference = abs(transcript_cord1 - utr_cord1)
-                        cord2_difference = abs(transcript_cord2 - utr_cord2)
-                        if (cord1_difference > cord2_difference):
-                            event_type = "3_UTR"
+                        if strand == "+":
+                            cord1_difference = abs(transcript_cord1 - utr_cord1)
+                            cord2_difference = abs(transcript_cord2 - utr_cord1)
+                            if (cord1_difference > cord2_difference):
+                                event_type = "3_UTR"
+                            else:
+                                event_type = "5_UTR"
                         else:
-                            event_type = "5_UTR"
+                            cord1_difference = abs(transcript_cord1 - utr_cord2)
+                            cord2_difference = abs(transcript_cord2 - utr_cord2)
+                            if (cord1_difference > cord2_difference):
+                                event_type = "5_UTR"
+                            else:
+                                event_type = "3_UTR"        
                     # If transcript feature, saves coordinates to determine UTR type.        
                 if (event_type == "transcript"):
                     transcript_cord1 = int(line_gtf_split[3])
