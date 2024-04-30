@@ -214,6 +214,23 @@ The script can be executed like the example below.
 remove_lower_regions.py -de x5_vs_uni_significant_filt_annot.csv x10_vs_uni_significant_filt_annot.csv x20_vs_uni_significant_filt_annot.csv x36_vs_uni_significant_filt_annot.csv x50_vs_uni_significant_filt_annot.csv -n all_clip_normalized_counts.csv -csv sample_set.csv -o /homs/username/output/  
 ```
 The script will produce two sets of outputs. One will contain the same output as the '_uni_significant_filt_annot.csv' files (the Comprehensive Binding Regions) but an additional last column will be added. This column will contain the average of the normalized counts. These files will have a '_count.csv' suffix. These files will need to be used for the later splicing analyses and can be used to make figures with normalized counts. The second set of files will contain a '_no_lower.csv' suffix and will contain the Novel Regions Per Dose for each sample. The Novel Regions Per Dose files are used for many downstream analyses. They will not be put in examples but will be noted when they need to used for processing by a script. Some steps, like the splicing steps, do no currently need the Novel Region Per Dose samples.
+After this, the script **get_normalized_counts.py** should be executed using the '_uni_significant_filt_annot.csv' files created by **remove_lower_regions.py**. The script will can be executed like the example below.
+```
+python3 /Users/jared.richardson/Desktop/doseclip/code/doseCLIP/get_normalized_counts.py \
+-de x5_vs_uni_significant_annotated_counts.csv \
+10_vs_uni_significant_annotated_counts.csv \
+x20_vs_uni_significant_annotated_counts.csv \
+36_vs_uni_significant_annotated_counts.csv \
+50_vs_uni_significant_annotated_counts.csv \
+x5_vs_uni_significant_annotated_no_lower.csv \
+x10_vs_uni_significant_annotated_no_lower.csv \
+x20_vs_uni_significant_annotated_no_lower.csv \
+x36_vs_uni_significant_annotated_no_lower.csv \
+x50_vs_uni_significant_annotated_no_lower.csv \
+-p data_set1 \
+-o normalized_counts
+```
+The script will create one file with all average counts per each file combination and each single file ("_average_normalized_counts.csv" file suffix). In addition, files will be created containing each normalized count value for all singular files and files with counts based on the combinations of files. The files containing each normalized count value can be used for plotting all the values. If not all values are desired to be plotted, the averages can be used.
 ## Step 11: Determining enrichment of motifs (non-RNA Bind-N-Seq style).
 First random BED files need to be generated that include regions around exonic regions for motif normalization. This can be performed with **make_random_bed_for_motif.py**. This script can be tested on your computer using `pytest test_make_random_bed_for_motif.py` and instructions for this script can be given with the following command- `python make_random_bed_for_motif.py -h`. The script takes a GTF file, an integer indicating the number of replicates to be generated, another integer indicating the number of regions per replicate to generate, and a file output prefix. I suggest generating at least three replicates using the average number of significant binding regions found for each dataset (perhaps around 3,000 regions). This will make it so the random distribution of your motifs of interest are likely generated in the random sets, enabling you to determine if your motifs of interest are enriched in your significant doseCLIP binding regions. The file prefix for these random BED files needs to include the string "random" in them. The motif analyzer script uses this string to determine which files are random and then uses these files for normalization. These random BED files will need to be converted to FASTA format like the filtered binding regions in the next step. The filtered binding regions, both verus the uninduced and SM Filtered can now be analyzed for motif enrichment. Motif enrichment informs us whether the RBP has nucleotide sequences that it has stronger binding interactions with. Before converting the files to BED files, it is advantageous at this point to make additional files that contain the 3' UTR binding regions for the 'uni_significant_filt_annot.csv' files and the the Novel Region Per Dose samples (i.e., '_no_lower.csv'). This can be performed using `grep` command with the phrase "3_UTR". The command can be performed like the example below. The 3 UTR files need to be converted to FASTA format but DO NOT need to be analyzed for motif information, at this point. They will be used for the binding region conservation step found later.
 ```

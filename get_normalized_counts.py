@@ -12,24 +12,22 @@ def process_files(deseq_file_list, output_prefix, output):
         in the order desired to be filtered. This is is usually the lower 
         concentration to higher concentration. The file is in CSV format.
         Must contain last average counts from remove_lower_regions.py script.
-        Should contain an entire file set for each protein concentration. Files
-        with lower concentration regions should be executed separately from
-        files without them.
+        Should contain an entire file set for each protein concentration.
     output_prefix -- Prefix for output files.
     output -- Directory output for output file.
 
     Output:
     normalized_average_counts_out -- File contains average normalized counts for each
         sample file based on file input. File is in CSV format.
-        File name- "output" + "sample_name" + "_average_normalized_counts.csv"
-        Format- "Sample_name,Average_normalized_counts\n" 
+        File name- "output" + "sample_name" + "_average_normalized_counts.csv".
+        Format- "Sample_name,Average_normalized_counts\n". 
     all_normalized_counts_out -- File contains all normalized counts for each
         single sample file based on file input. File is in CSV format.
-        File name- "output" + "sample_name" + "_average_normalized_counts.csv"
+        File name- "output" + "sample_name" + "_average_normalized_counts.csv".
         Format- Format is file name with counts below.
     all_normalized_counts_out_combined -- File contains all normalized counts for each
         single sample file's counts from another file. File is in CSV format.
-        File name- "output" + "sample_name" + "_average_normalized_counts.csv"
+        File name- "output" + "sample_name" + "_average_normalized_counts.csv".
         Format- Format is file name with counts below.     
     """
     # Opens average output file and writes the title line. Only used for filename
@@ -110,9 +108,7 @@ def get_normalized_counts(deseq_file):
         and filtered with the control sample (i.e., 
         x50_vs_uni_significant_filt_annot.csv). The file is in CSV format.
         Must contain last average counts from remove_lower_regions.py script.
-        Should contain an entire file set for each protein concentration. Files
-        with lower concentration regions should be executed separately from
-        files without them.
+        Should contain an entire file set for each protein concentration.
 
     Output:
     count_dictionary -- Dictionary of the average normalized counts 
@@ -163,9 +159,7 @@ def init_argparse():
                               in the order desired to be filtered. This is is usually the lower \
                               concentration to higher concentration. The file is in CSV format. \
                               Must contain last average counts from remove_lower_regions.py script. \
-                              Should contain an entire file set for each protein concentration. Files \
-                              with lower concentration regions should be executed separately from \
-                              files without them.", 
+                              Should contain an entire file set for each protein concentration.", 
                               required = True)
     parser.add_argument("-p", "--output_prefix", action = "store", type = str,
                         help="Prefix for output files.",
@@ -186,17 +180,23 @@ def main():
             in the order desired to be filtered. This is is usually the lower 
             concentration to higher concentration. The file is in CSV format.
             Must contain last average counts from remove_lower_regions.py script.
-            Should contain an entire file set for each protein concentration. Files
-            with lower concentration regions should be executed separately from
-            files without them.
+            Should contain an entire file set for each protein concentration.
         output_prefix -- Prefix for output files.
         output -- Directory output for output file.   
             
         Output:    
         normalized_average_counts_out -- File contains average normalized counts for each
-        sample file based on file input. File is in CSV format. 
+            sample file based on file input. File is in CSV format.
+            File name- "output" + "sample_name" + "_average_normalized_counts.csv".
+            Format- "Sample_name,Average_normalized_counts\n".
         all_normalized_counts_out -- File contains all normalized counts for each
-        sample file based on file input. File is in CSV format.   
+            single sample file based on file input. File is in CSV format.
+            File name- "output" + "sample_name" + "_average_normalized_counts.csv".
+            Format- Format is file name with counts below.
+        all_normalized_counts_out_combined -- File contains all normalized counts for each
+            single sample file's counts from another file. File is in CSV format.
+            File name- "output" + "sample_name" + "_average_normalized_counts.csv".
+            Format- Format is file name with counts below.  
     """
     # Uses argparse to organize command line arguments.
     args_to_parse = init_argparse()
