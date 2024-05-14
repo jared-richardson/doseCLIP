@@ -17,8 +17,8 @@ def process_files(deseq_file_list, output_prefix, output):
     output -- Directory output for output file.
 
     Output:
-    normalized_average_counts_out -- File contains average normalized counts for each
-        sample file based on file input. File is in CSV format.
+    normalized_average_counts_out -- File contains average and median normalized 
+        counts for each sample file based on file input. File is in CSV format.
         File name- "output" + "sample_name" + "_average_normalized_counts.csv".
         Format- "Sample_name,Average_normalized_counts\n". 
     all_normalized_counts_out -- File contains all normalized counts for each
@@ -37,11 +37,13 @@ def process_files(deseq_file_list, output_prefix, output):
     else:
         normalized_average_counts_out = open(output + "/" + output_prefix + "_average_normalized_counts.csv", "w")
     # Writes out title for normalized_average_counts_out.
-    normalized_average_counts_out.write("Sample_name,Average_normalized_counts\n")    
+    normalized_average_counts_out.write("Sample_name,Average_normalized_counts,Median_count\n") 
     # Intitializes dictionary to store each sample file's normalized counts.
     sample_dictionary = {}
-    # Average count dictionary. Stores the average normalized counts for each sample.
+    # Average and median count dictionary. Stores the average and median normalized 
+    # counts for each sample.
     average_count_dictionary = {}
+    median_count_dictionary = {}
     # Iterates through each DESeq2 file and adds the normalized counts to a dictionary.
     for file in deseq_file_list:
         count_dictionary, sample_name = get_normalized_counts(file)
@@ -59,12 +61,17 @@ def process_files(deseq_file_list, output_prefix, output):
         all_normalized_counts_out.write(sample + "\n")    
         average_count = 0
         count = 0
+        # List used to store values to calculate median after all values are added.
+        median_list = []
         # Count used so that sample average is only calculated once.
         sample_flag_count = 0
         for other_sample in sample_dictionary:
             if sample != other_sample:
                 average_count_both = 0
                 count_both = 0
+                # List used to store values to calculate median after a
+                # all values are added.
+                median_list_both = []
                 sample_flag_count += 1
                 # Combined sample name for output.
                 combined_name = (sample + "-" + other_sample)
@@ -76,6 +83,8 @@ def process_files(deseq_file_list, output_prefix, output):
                 all_normalized_counts_out_combined.write(combined_name + "\n")
                 for region in sample_dictionary.get(sample):
                     if sample_flag_count == 1:
+                        # Adds to list for median calculation.
+                        median_list.append(sample_dictionary.get(sample).get(region))
                         # Filters for outliers.
                         if sample_dictionary.get(sample).get(region) < 4000:
                             average_count += sample_dictionary.get(sample).get(region)
@@ -83,6 +92,8 @@ def process_files(deseq_file_list, output_prefix, output):
                             # Writes out all normalized counts to a file.
                             all_normalized_counts_out.write(str(sample_dictionary.get(sample).get(region)) + "\n")
                     if region in sample_dictionary.get(other_sample):
+                        # Adds to list for median calculation.
+                        median_list_both.append(sample_dictionary.get(other_sample).get(region))
                         # Filters for outliers.
                         if sample_dictionary.get(sample).get(region) < 4000:
                             average_count_both += sample_dictionary.get(other_sample).get(region)
@@ -90,13 +101,18 @@ def process_files(deseq_file_list, output_prefix, output):
                             # Writes out all normalized counts to a file.
                             all_normalized_counts_out_combined.write(str(sample_dictionary.get(other_sample).get(region)) + "\n")
                 if count_both != 0:        
-                    average_count_dictionary[combined_name] = (average_count_both / count_both)             
+                    average_count_dictionary[combined_name] = (average_count_both / count_both) 
+                    median_list_both.sort()
+                    median_count_dictionary[combined_name] = median_list_both[int(len(median_list_both) / 2)]            
         average_count_dictionary[sample] = (average_count / count)
+        median_list.sort()
+        median_count_dictionary[sample] = median_list[int(len(median_list) / 2)]
         all_normalized_counts_out.close()
         all_normalized_counts_out_combined.close()
     # Writes out average counts to a file.
     for sample in average_count_dictionary:
-            normalized_average_counts_out.write(sample + "," + str(average_count_dictionary.get(sample)) + "\n")
+            normalized_average_counts_out.write(sample + "," + str(average_count_dictionary.get(sample)) +
+                                                "," + str(median_count_dictionary.get(sample)) + "\n")
     normalized_average_counts_out.close()    
 
 def get_normalized_counts(deseq_file):
