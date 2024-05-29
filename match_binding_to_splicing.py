@@ -96,6 +96,8 @@ def match_binding_to_splicing(binding_regions, splicing_dictionary, distance,
     splicing_binding_out.write("Normalized_Motif_Enrichment,Region Size,")
     splicing_binding_out.write("Region_Position-(+up)-(-down)-(0in),Base-Mean,Canonical_Splicing_Regulation,")
     splicing_binding_out.write("Normalized_Count\n")
+    # Puts regions motif values into a dictionary.
+    region_dictionary = collect_regions(region_csv)
     # Loops through binding regions file and matches splicing events.
     for line in binding_regions_open:
         line_split = line.split(",")
@@ -107,8 +109,6 @@ def match_binding_to_splicing(binding_regions, splicing_dictionary, distance,
             region_size = int(region_pre[2]) - int(region_pre[1])
             # region_key = [chromosome, region-start, region-end, strand, region-size, base-mean]
             region_list = [region_pre[0], region_pre[1], region_pre[2], region_pre[3][0], region_size, line_split[1]]
-            # Puts regions motif values into a dictionary.
-            region_dictionary = collect_regions(region_csv)
             for key_pre in splicing_dictionary:
                 key = key_pre.split("~")
                 # Checks if chromosome and strand match.
@@ -167,6 +167,7 @@ def match_binding_to_splicing(binding_regions, splicing_dictionary, distance,
                         splicing_binding_out.write(splicing_value[5] + "," + splicing_value[6] + "," + 
                                                    region_list[1] + "," + region_list[2] + ",")
                         splicing_binding_out.write(str(motif_value) + "," + str(region_list[4])+ ",")
+                        print(motif_value)
                         splicing_binding_out.write(str(region_position) + "," + str(region_list[5]) + "," + 
                                                    canonical_splicing + "," + normalized_count + "\n")
 
@@ -192,7 +193,13 @@ def collect_regions(region_csv):
     for line in region_csv_open:
         if line[0] != "R":
             line_split = line.strip("\n").split(",")
-            region_dictionary[line_split[0]] = [line_split[1], line_split[2]]
+            # Formats region name to match DeSeq2 output.
+            region_pre = line_split[0].split("(")
+            strand = region_pre[1].replace(")", "")
+            region_name = region_pre[0].replace("-", "~")
+            region_name = region_name.replace(":", "~")
+            region_name = '"' + region_name + "~" + strand + "g" + '"'
+            region_dictionary[region_name] = [line_split[1], line_split[2]]                                         
     return region_dictionary
 
 def init_argparse():
