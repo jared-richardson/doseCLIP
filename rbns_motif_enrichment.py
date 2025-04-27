@@ -51,8 +51,6 @@ def get_motif_enrichment(fastq_list, fastq_sm_list, kmer_size):
         for motif in file_dictionary[file_name_full]:
             # Used to store average motif enrichment values.
             current_value = final_dictionary.get(motif, 0)
-            if motif == "TCTGCCT":
-                print("TCTGCCT " + str(file_dictionary[file_name_full][motif]))
             final_dictionary[motif] = (current_value + 
                                        file_dictionary[file_name_full][motif])
             # Used to count if motif was present in each file.
@@ -190,10 +188,6 @@ def normalize_motifs(motif_dictionary, motif_dictionary_sm):
     # motif, skips motif. Skipped motifs should be rare.
     for motif in motif_dictionary:
         if motif_dictionary_sm.get(motif) != None:
-            if motif == "TCTGCCT":
-                if motif == "TCTGCCT":
-                    print("TCTGCCT Reg" + str(motif_dictionary[motif]))
-                    print("TCTGCCT SM" + str(motif_dictionary_sm[motif]))
             normalized_count = (motif_dictionary[motif] 
                                 / float(motif_dictionary_sm[motif]))
             normalized_dictionary[motif] = normalized_count
