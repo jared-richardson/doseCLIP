@@ -51,6 +51,8 @@ def get_motif_enrichment(fastq_list, fastq_sm_list, kmer_size):
         for motif in file_dictionary[file_name_full]:
             # Used to store average motif enrichment values.
             current_value = final_dictionary.get(motif, 0)
+            if motif == "TCTGCCT":
+                print("TCTGCCT " + str(file_dictionary[file_name_full][motif]))
             final_dictionary[motif] = (current_value + 
                                        file_dictionary[file_name_full][motif])
             # Used to count if motif was present in each file.
@@ -93,6 +95,10 @@ def motif_detector(fastq_file, kmer_size):
     # counts for each nucleotide line.  
     while len(line2) > 0:
         line_clean = line2.strip("\n")
+        # If detects "R1" (indicating read 1), gets reverse complement 
+        # of the cleaned line.
+        if fastq_file.find("R1") != -1:
+            line_clean = reverse_complement(line_clean)
         # Loops through each nucleotide and generates motif counts. 
         # Generates normalized counts per region and per file.
         for start in range(len(line_clean) - kmer_size + 1):
@@ -114,6 +120,35 @@ def motif_detector(fastq_file, kmer_size):
                                 / float(nucleotide_count))
             motif_dictionary[kmer] = normalized_count
     return motif_dictionary          
+
+def reverse_complement(sequence):
+    """Takes in a string nucleotide sequence and returns
+        a string reverse complement of the read.
+
+        Arguments:
+        sequence -- Nucleotide sequence string.
+
+        Output:
+        reverse_complement -- Reverse complement of input sequence.
+    """
+    # Stores reverse complement of each nucleotide.
+    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
+    # Used to store reverse complement.
+    reverse_complement = ""
+    # Loops through each nucleotide in the sequence and
+    # generates reverse complement.
+    for nucleotide in sequence:
+        if nucleotide == "A":
+            reverse_complement = "T" + reverse_complement
+        elif nucleotide == "T":
+            reverse_complement = "A" + reverse_complement
+        elif nucleotide == "C":
+            reverse_complement = "G" + reverse_complement
+        elif nucleotide == "G":
+            reverse_complement = "C" + reverse_complement
+    # Reverses sequence to get reverse complement.
+    reverse_complement = reverse_complement[::-1]                  
+    return reverse_complement
 
 def get_file_name(file):
     """Gets file name from input argument.
@@ -155,6 +190,10 @@ def normalize_motifs(motif_dictionary, motif_dictionary_sm):
     # motif, skips motif. Skipped motifs should be rare.
     for motif in motif_dictionary:
         if motif_dictionary_sm.get(motif) != None:
+            if motif == "TCTGCCT":
+                if motif == "TCTGCCT":
+                    print("TCTGCCT Reg" + str(motif_dictionary[motif]))
+                    print("TCTGCCT SM" + str(motif_dictionary_sm[motif]))
             normalized_count = (motif_dictionary[motif] 
                                 / float(motif_dictionary_sm[motif]))
             normalized_dictionary[motif] = normalized_count
