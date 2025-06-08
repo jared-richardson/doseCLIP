@@ -37,7 +37,9 @@ def get_motif_enrichment(fastq_list, fastq_sm_list, kmer_size):
         file_name = get_file_name(file)
         file_name_sm = get_file_name(file_sm)
         motif_dictionary = motif_detector(file, kmer_size)
+        print("Regular_file: " + file)
         motif_dictionary_sm = motif_detector(file_sm, kmer_size)
+        print("SM_file: " + file_sm)
         # Normalizes motif counts for each file using SM input.
         normalized_dictionary = normalize_motifs(motif_dictionary, motif_dictionary_sm)
         file_dictionary[file_name + "-" + file_name_sm] = normalized_dictionary
@@ -120,33 +122,32 @@ def motif_detector(fastq_file, kmer_size):
     return motif_dictionary          
 
 def reverse_complement(sequence):
-    """Takes in a string nucleotide sequence and returns
-        a string reverse complement of the read.
+    """Calculates the reverse complement of a nucleotide sequence.
 
-        Arguments:
-        sequence -- Nucleotide sequence string.
+    Arguments:
+    sequence -- The input string nucleotide sequence (e.g., "AGCT").
+        Handles both uppercase and lowercase A, T, C, G, and N.
 
-        Output:
-        reverse_complement -- Reverse complement of input sequence.
+    Output:
+    reverse_complemented_sequence -- The string reverse complement 
+        of the sequence.
     """
-    # Stores reverse complement of each nucleotide.
-    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
-    # Used to store reverse complement.
-    reverse_complement = ""
-    # Loops through each nucleotide in the sequence and
-    # generates reverse complement.
-    for nucleotide in sequence:
-        if nucleotide == "A":
-            reverse_complement = "T" + reverse_complement
-        elif nucleotide == "T":
-            reverse_complement = "A" + reverse_complement
-        elif nucleotide == "C":
-            reverse_complement = "G" + reverse_complement
-        elif nucleotide == "G":
-            reverse_complement = "C" + reverse_complement
-    # Reverses sequence to get reverse complement.
-    reverse_complement = reverse_complement[::-1]                  
-    return reverse_complement
+    # Define the mapping for complementary bases, including N for unknown bases
+    complement_map = {
+        'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C',
+        'a': 't', 't': 'a', 'c': 'g', 'g': 'c',
+        'N': 'N', 'n': 'n' }
+    # Complements the sequence- iterates through each base in the input sequence, 
+    # finds its complement using the map, and joins them back into a string.
+    # .get(base, base) ensures that if a character is not in the map,
+    # it is returned as is (e.g., for non-standard characters, though
+    # ideally input should be validated for strict nucleotide sequences).
+    complemented_bases = [complement_map.get(base, base) for base in sequence]
+    complemented_sequence = "".join(complemented_bases)
+    # Reverses the complemented sequence- Python's string slicing [::-1] 
+    # is an efficient way to reverse a string.
+    reverse_complemented_sequence = complemented_sequence[::-1]
+    return reverse_complemented_sequence
 
 def get_file_name(file):
     """Gets file name from input argument.
